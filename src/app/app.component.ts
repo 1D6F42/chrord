@@ -22,7 +22,7 @@ export class AppComponent {
     this.diatonicTriads = [];
     for (var i = 1; i < 8; i++) {
       let theTriad = this.diatonic.getDiatonicTriadForScaleDegree(i);
-      this.diatonicTriads.push([this.diatonic.getLabelForTriad(theTriad), theTriad]);
+      this.diatonicTriads.push([this.diatonic.getLabelForTriadDegree(theTriad), theTriad]);
     }
   }
 

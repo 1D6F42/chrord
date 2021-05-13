@@ -1,16 +1,79 @@
 import { Injectable } from '@angular/core';
-import { Modes, Triad, TriadShapes, Degrees } from './diatonic'
+import { Modes, Triad, TriadShapes, Degrees, cof } from './diatonic'
 
 @Injectable({
   providedIn: 'root'
 })
+
 export class DiatonicService {
 
   mode: number[];
 
   constructor() {
     this.mode = Modes.ionian;
+
+
+    let notes = ["A", "B", "C", "D", "E", "F", "G"];
+    let clockwise = ["C", "G", "D", "A", "E", "B", "F"];
+    let counter = ["C", "F", "B", "E", "A", "D", "G"];
+    let sharps = ["F", "C", "G", "D", "A", "E", "B"];
+    let flats = ["B", "E", "A", "D", "G", "C", "F"];
+
+    // I am become death
+
+    for (var md = 0; md < 7; md++) {
+      var outSharps: string[] = []
+      console.log("Mode: " + Modes.offsets[md])
+      this.rotateArray(Object.assign([], clockwise), md).forEach((key, index) => {
+        var scale = Object.assign([], notes);
+        for (var i = 0; i < index; i++) {
+          scale[this.deepIndexOf(scale, sharps[i])] += "#"
+          if (key == sharps[i]) {
+            key += "#"
+          }
+        }
+        outSharps.push(this.rotateArray(scale, this.deepIndexOf(scale, key)).toString())
+      });
+
+      // I think this is working but i need to work out why it's working
+
+      var outFlats: string[] = []
+      this.rotateArray(Object.assign([], counter), md).forEach((key, index) => {
+        var scale = Object.assign([], notes);
+        for (var i = 0; i < index; i++) {
+          scale[this.deepIndexOf(scale, flats[i])] += "b"
+          if (key == flats[i]) {
+            key += "b"
+          }
+        }
+        outFlats.push(this.rotateArray(scale, this.deepIndexOf(scale, key)).toString())
+      });
+
+      console.log(outSharps)
+      console.log(outFlats)
+
+    }
+
+
+
   }
+
+  deepIndexOf(arr: any[], obj: any): number {
+    return arr.findIndex(function (cur) {
+      return Object.keys(obj).every(function (key) {
+        return obj[key] === cur[key];
+      });
+    });
+  }
+
+  rotateArray(array: any[], count: number): any[] {
+    while (count--) {
+      var tmp = array.shift();
+      array.push(tmp);
+    }
+    return array;
+  }
+
 
   getDiatonicTriadForScaleDegree(scaleDegree: number): Triad {
 
@@ -34,7 +97,7 @@ export class DiatonicService {
     return triad;
   }
 
-  getLabelForTriad(triad: Triad) {
+  getLabelForTriadDegree(triad: Triad) {
     if (triad.matchShape(TriadShapes.major)) {
       return Degrees.text[triad.degree].toUpperCase();
     }
