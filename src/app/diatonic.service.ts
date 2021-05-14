@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { Modes, Triad, TriadShapes, Degrees, cof } from './diatonic'
+import { Modes, Triad, TriadShapes, Degrees } from './diatonic'
 
 @Injectable({
   providedIn: 'root'
@@ -11,11 +11,11 @@ export class DiatonicService {
 
   constructor() {
     this.mode = Modes.ionian;
-    this.knowAllKeys();
+    this.knowAllScales();
   }
 
-  // @brief  knows all keys
-  knowAllKeys() {
+  // @brief  knows all scales
+  knowAllScales() {
 
     // Mode	  Tonic relative
     //        to major scale	    Interval sequence	    Example
@@ -27,66 +27,104 @@ export class DiatonicService {
     // Aeolian	    vi	          W–H–W–W–H–W–W	    A–B–C–D–E–F–G–A
     // Locrian	    viiø	        H–W–W–H–W–W–W	    B–C–D–E–F–G–A–B
 
-    // Test code to generate all 'sharp' keys for all modes. A 'sharp' key is a key with sharps in it, instead of flats.
-    // Flat keys will work the same way, but will rotate the opposite way through the cof and accidentals arrays... TBD
+    // Test code to generate all 'sharp' scales for all modes. A 'sharp' scale is a scale with sharps in it, instead of flats.
+    // Flat scales will work the same way, but will rotate the opposite way through the arrays, because the order of sharps is opposite to the order of flats
     // TODO: currently, when we do flats, C major (and its friends) will be duplicated in sharps / flats. not sure it matters though.
 
-    let note_letters = ["A", "B", "C", "D", "E", "F", "G"];
-    let circle_of_fifths = ["C", "G", "D", "A", "E", "B", "F"]; // root notes, sharps / flats get added during scale construction
     let order_of_sharps = ["F", "C", "G", "D", "A", "E", "B"];
-    let mode_names = [ // ordered by their COF rotation index...
+    let order_of_flats = ["B", "E", "A", "D", "G", "C", "F"];
+
+    // Modes ordered by which scale in order_of_sharps contains no sharps for that mode. For example, G == mixolydian, G mixolydian has no sharps.
+    let mode_names = [
+      "lydian",
       "ionian",
       "mixolydian",
       "dorian",
       "aeolian",
       "phrygian",
-      "locrian",
-      "lydian"
+      "locrian"
     ]
 
-    // A mode can be represented as a rotation in the circle of fifths.
-    // This outer loop defines a 'modeIndex', which is used to rotate the 'cof' array
-    for (var modeIndex = 0; modeIndex < circle_of_fifths.length; modeIndex++) {
-      console.log("Mode: " + mode_names[modeIndex])
-      var cof = this.rotateArray(Object.assign([], circle_of_fifths), modeIndex) // gets the COF for each mode
-      for (var x = 0; x < circle_of_fifths.length + 1; x++) { // There are 8 sharp keys. Because one key has none, and then one for each entry in 'order_of_sharps'
-        var scale = Object.assign([], note_letters); // make copy of note letters arr
-        let index = this.wrapIndex(x); // Turns 8 into 0, because the key with 7 accidentals will start on the same 'root' note name as the key with none.
-        // This loop applies the correct number of accidentals for the given step on the circle of fifths (sharps in this case).
-        var accidentals: string[] = []; // we want to keep track of accidentals, so we can construct the appropriate chromatic note set for each key 
-        for (var i = 0; i < x; i++) {
-          accidentals.push(order_of_sharps[i]) // If a note is sharped, we know that the natural is now an accidental  // + "♮" fucks up sort for now so it's left out
-          scale[this.deepIndexOf(scale, order_of_sharps[i])] += "#"
-          // Remember our 'circle_of_fifths' array doesn't include the accidentals, so we need to apply them if the note should be accidentalised.
-          if (cof[index] == order_of_sharps[i]) { // compares the string values, ie if 'C' = 'C' then make it C#
-            cof[index] += "#"
+    let num_modes = 7;
+    let num_scales = 8;
+
+    // Basically, the way this function works is:
+    // - For each mode, create a rotated copy of the order_of_sharps array, moving the tonic of the scale with no sharps to the start.
+    // - There are 8 sharp keys, so iterate 8 times. Each time, create a 'blank' scale, and then add 0 - 7 sharps to it depending on the iterator value
+    // - Rotate each scale so that the tonic of the scale (given the mode we're in) lies at the start.
+    // - Track which notes aren't in the scale, so we can build the correct set of 12 notes around the scale.
+
+    for (var modeIndex = 0; modeIndex < num_modes; modeIndex++) {
+      console.log(mode_names[modeIndex] + " sharps" +  " / " + mode_names[mode_names.length-1-modeIndex] + " flats");
+      var mode_sharps = this.rotateArray(Object.assign([], order_of_sharps), modeIndex); // rotate order_of_sharps so the 0-sharp scale is at the start
+      var mode_flats = this.rotateArray(Object.assign([], order_of_flats), modeIndex); // rotate order_of_flats so the 0-flat scale is at the start
+      for (var scale_num = 0; scale_num < num_scales; scale_num++) { // One scale has 0 sharps, so we need to add 1 to the length.
+        // Create a scale containing just the note names. We use this as a base scale to modify later.
+        var sharp_scale = Object.assign([], order_of_sharps).sort();
+        var flat_scale = Object.assign([], order_of_flats).sort();
+
+        // We need our array index to wrap, because a scale with 7 sharps will start on the same natural note name as the scale with no sharps.
+        let wrapped = this.wrapIndex(scale_num);
+
+        var sharp_accidentals: string[] = []; // we want to keep track of accidentals, so we can construct the appropriate chromatic note set for each scale
+        var flat_accidentals: string[] =[];
+
+        // This loop will execute the same number of times that there are sharps, and sharp that many notes
+        for (var i = 0; i < scale_num; i++) {
+          sharp_accidentals.push(order_of_sharps[i]); // If a note is sharped, we know that the natural is now an accidental, so add it to the accidentals array
+          flat_accidentals.push(order_of_flats[i]);
+          // "♮" 
+          sharp_scale[this.deepIndexOf(sharp_scale, order_of_sharps[i])] += "#" // find the note in our scale and sharp it
+          flat_scale[this.deepIndexOf(flat_scale, order_of_flats[i])] += "b"
+          // This sharps the name / label of the scale if applicable.
+          if (mode_sharps[wrapped] == order_of_sharps[i]) {
+            mode_sharps[wrapped] += "#";
+          }
+          if(mode_flats[wrapped] == order_of_flats[i]){
+            mode_flats[wrapped] += "b";
           }
         }
-        // in a diatonic key of 7 notes, there are always 5 accidentals.
+
+        // in a diatonic scale of 7 notes, there are always 5 accidentals.
         // Some of them are already known, because we've 'sharped' some notes already. 
-        // If there are less than 5 accdentals known, the remaining accidentals will be the remaining sharps from the first 5 order_of_sharps that aren't already in the key.
-        while (accidentals.length < 5) {
-          accidentals.push(order_of_sharps[accidentals.length] + "#")
+
+        // If there are less than 5 accidentals known, the remaining accidentals will be the remaining sharps from the first 5 order_of_sharps that aren't already in the scale.
+        while (sharp_accidentals.length < 5) {
+          sharp_accidentals.push(order_of_sharps[sharp_accidentals.length] + "#");
+          flat_accidentals.push(order_of_flats[flat_accidentals.length] + "b");
         }
+
         // If there are more than 5 items in the 'accidentals' array, it means we 'sharped' more than 5 notes.
-        // if this happens, we know that the first one / two entries will be F and C natural, because they are the first notes in order_of_accidentals.
-        // But in a key with 6 or 7 sharps, these won't be accidentals, as they are enharmonic with B# and E#. So we can remove them to get 5.
-        while (accidentals.length > 5) {
-          accidentals.shift()
+        // if this happens, we know that the first one / two entries in 'accidentals' will be F and C natural, because they are the first notes in order_of_accidentals.
+        // But in a scale with 6 or 7 sharps, these won't be accidentals, as they are enharmonic with B# and E#. So we can remove them to get 5.
+        while (sharp_accidentals.length > 5) {
+          sharp_accidentals.shift();
+          flat_accidentals.shift();
         }
-        // The chromatic scale that a key is based on is made up of the key, and its accidentals.
-        var chromatic_scale: string[] = []
-        accidentals.forEach(a => {
-          chromatic_scale.push(a)
+        // The chromatic scale that a scale is based on is made up of the scale, and its accidentals.
+        var sharp_chromatic_scale: string[] = []
+        sharp_accidentals.forEach(a => {
+          sharp_chromatic_scale.push(a);
         });
-        scale.forEach(s => {
-          chromatic_scale.push(s)
+        sharp_scale.forEach(s => {
+          sharp_chromatic_scale.push(s);
         });
-        // Test printing. 'rotateArray' is just used to have the first note of the scale be first in the list.
-        scale = this.rotateArray(scale, this.deepIndexOf(scale, cof[index]));
-        chromatic_scale = this.rotateArray(chromatic_scale, this.deepIndexOf(chromatic_scale.sort(), cof[index]));
-        console.log("Scale: " + scale + "\t - (Diatonic): " + chromatic_scale + "\t - Accidentals: " + accidentals)
-        // outSharps.push(cof[index] + ": " + this.rotateArray(scale, this.deepIndexOf(scale, cof[index])).toString() + ", Accidentals: " + accidentals.toString())
+        var flat_chromatic_scale: string[] = []
+        flat_accidentals.forEach(a => {
+          flat_chromatic_scale.push(a);
+        });
+        flat_scale.forEach(s => {
+          flat_chromatic_scale.push(s);
+        });
+
+        sharp_chromatic_scale = this.rotateArray(sharp_chromatic_scale, this.deepIndexOf(sharp_chromatic_scale.sort(), mode_sharps[wrapped]));
+        flat_chromatic_scale = this.rotateArray(flat_chromatic_scale, this.deepIndexOf(flat_chromatic_scale.sort(), mode_flats[wrapped]));
+
+        // 'rotateArray' puts the correct note at the start of the scale. 
+        sharp_scale = this.rotateArray(sharp_scale, this.deepIndexOf(sharp_scale, mode_sharps[wrapped]));
+        flat_scale = this.rotateArray(flat_scale, this.deepIndexOf(flat_scale, mode_flats[wrapped]));
+        console.log("Scale: " + sharp_scale + "\t - Chromatic: " + sharp_chromatic_scale + "\t - Accidentals: " + sharp_accidentals);
+        console.log("Scale: " + flat_scale + "\t - Chromatic: " + flat_chromatic_scale + "\t - Accidentals: " + flat_accidentals);
       }
     }
   }
