@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 import { DiatonicService } from './diatonic.service';
-import { Triad, Modes } from './diatonic';
+import { Triad, Modes, Scale } from './diatonic';
 
 @Component({
   selector: 'app-root',
@@ -8,14 +8,31 @@ import { Triad, Modes } from './diatonic';
   styleUrls: ['./app.component.css']
 })
 export class AppComponent {
-  title = 'chrord';
-  modes = ["ionian", "dorian", "phrygian", "lydian", "mixolydian", "aeolian", "locrian"];
+  modes = ["ionian", "dorian", "phrygian", "lydian", "mixolydian", "aeolian", "locrian"]; // update to use enum
   selectedMode = this.modes[0]
-
+  tonics = []
+  selectedTonic;
+  selectedScale: Scale;
   diatonicTriads: [string, Triad][] = [];
+  chordList = [];
 
   constructor(private readonly diatonic: DiatonicService) {
+    diatonic.knowAllScales();
     this.getTriads();
+    this.getNotes();
+    this.changeMode();
+    this.changeTonic();
+  }
+
+  getNotes() {
+    this.tonics = [];
+    this.diatonic.scales.forEach(scale => {
+      if (scale.mode == this.selectedMode) {
+        this.tonics.push(scale.notes[0])
+      }
+    });
+    this.selectedTonic = this.tonics[0];
+    this.changeTonic();
   }
 
   getTriads() {
@@ -26,9 +43,28 @@ export class AppComponent {
     }
   }
 
+  changeTonic() {
+    this.chordList = [];
+    this.diatonic.scales.forEach(scale => {
+      if (this.selectedMode == scale.mode && this.selectedTonic == scale.notes[0]) {
+        this.selectedScale = scale;
+      }
+    })
+  }
+
+  chordButton(triad: [string, Triad]) {
+
+    // doing this a kind of shit way, because we can't use the chromatic scale references until i have overridden the array sort in the diatonic service.
+    this.chordList.push([this.selectedScale.notes[this.diatonic.wrapIndex(triad[1].degree - 1)],
+      this.selectedScale.notes[this.diatonic.wrapIndex(triad[1].degree + 1)],
+      this.selectedScale.notes[this.diatonic.wrapIndex(triad[1].degree + 3)]]);
+
+  }
+
   changeMode() {
+    this.chordList = [];
+    this.getNotes();
     //improve this later
-    console.log(this.selectedMode);
     switch (this.selectedMode) {
       case "ionian":
         this.diatonic.mode = Modes.ionian;

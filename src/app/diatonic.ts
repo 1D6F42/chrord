@@ -40,6 +40,16 @@ export class Degrees {
 //     public static fLaTs  = ["A", "Bb", "Cb", "C", "Db", "D", "Eb", "Fb", "F", "Gb", "G", "Ab"];    
 // }
 
+export enum MODES {
+    lydian,
+    ionian,
+    mixolydian,
+    dorian,
+    aeolian,
+    phrygian,
+    locrian
+}
+
 export class Modes {
 
     // Defines the diatonic modes in interval values, with the first entry denoting the interval from degree i to ii
@@ -51,6 +61,20 @@ export class Modes {
     public static mixolydian  = [2, 2, 1, 2, 2, 1, 2];
     public static aeolian     = [2, 1, 2, 2, 1, 2, 2];
     public static locrian     = [1, 2, 2, 1, 2, 2, 2];
+}
+
+export class Scale {
+    notes: string[];
+    accidentals: string[];
+    chromatic: string[];
+    mode: string;
+
+    constructor(notes: string[], accidentals: string[], chromatic: string[], mode: string) {
+        this.notes = notes;            
+        this.accidentals = accidentals;            
+        this.chromatic = chromatic;            
+        this.mode = mode;                
+    }
 }
 
 export class Triad {

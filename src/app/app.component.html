@@ -1,10 +1,23 @@
 <h1>hello</h1>
 <mat-form-field appearance="fill">
+  <mat-label>Pick a scale</mat-label>
+  <mat-select (selectionChange)="changeTonic()" [(value)]="selectedTonic">
+    <mat-option *ngFor="let tonic of tonics" [value]="tonic">{{tonic}}</mat-option>
+  </mat-select>
+</mat-form-field>
+<mat-form-field appearance="fill">
   <mat-label>Pick a MODE</mat-label>
   <mat-select (selectionChange)="changeMode()" [(value)]="selectedMode">
     <mat-option *ngFor="let mode of modes" [value]="mode">{{mode}}</mat-option>
   </mat-select>
 </mat-form-field>
 <div>
-  <button style="font-family: 'Times New Roman', Times, serif; font-size: 18px" mat-raised-button *ngFor="let triad of diatonicTriads" mat-raised-button>{{triad[0]}}</button>
+  <button (click)="chordButton(triad)" style="font-family: 'Times New Roman', Times, serif; font-size: 18px"
+    mat-raised-button *ngFor="let triad of diatonicTriads" mat-raised-button>{{triad[0]}}</button>
+</div>
+<div style="margin-top:10px;font-family: 'Times New Roman', Times, serif; font-size: 18px">
+  Notes: <t *ngFor="let note of selectedScale.notes">{{note}} </t>
+</div>
+<div style="margin-top:10px;font-family: 'Times New Roman', Times, serif; font-size: 18px">
+  Chords:<br><t style="margin-left:10px" *ngFor="let chord of chordList">{{chord}}<br></t>
 </div>

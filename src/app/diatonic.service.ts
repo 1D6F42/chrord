@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { Modes, Triad, TriadShapes, Degrees } from './diatonic'
+import { Modes, Triad, TriadShapes, Degrees, Scale, MODES } from './diatonic'
 
 @Injectable({
   providedIn: 'root'
@@ -8,10 +8,10 @@ import { Modes, Triad, TriadShapes, Degrees } from './diatonic'
 export class DiatonicService {
 
   mode: number[];
+  scales: Scale[] = [];
 
   constructor() {
     this.mode = Modes.ionian;
-    this.knowAllScales();
   }
 
   // @brief  knows all scales
@@ -34,17 +34,6 @@ export class DiatonicService {
     let order_of_sharps = ["F", "C", "G", "D", "A", "E", "B"];
     let order_of_flats = ["B", "E", "A", "D", "G", "C", "F"];
 
-    // Modes ordered by which scale in order_of_sharps contains no sharps for that mode. For example, G == mixolydian, G mixolydian has no sharps.
-    let mode_names = [
-      "lydian",
-      "ionian",
-      "mixolydian",
-      "dorian",
-      "aeolian",
-      "phrygian",
-      "locrian"
-    ]
-
     let num_modes = 7;
     let num_scales = 8;
 
@@ -55,7 +44,6 @@ export class DiatonicService {
     // - Track which notes aren't in the scale, so we can build the correct set of 12 notes around the scale.
 
     for (var modeIndex = 0; modeIndex < num_modes; modeIndex++) {
-      console.log(mode_names[modeIndex] + " sharps" +  " / " + mode_names[mode_names.length-1-modeIndex] + " flats");
       var mode_sharps = this.rotateArray(Object.assign([], order_of_sharps), modeIndex); // rotate order_of_sharps so the 0-sharp scale is at the start
       var mode_flats = this.rotateArray(Object.assign([], order_of_flats), modeIndex); // rotate order_of_flats so the 0-flat scale is at the start
       for (var scale_num = 0; scale_num < num_scales; scale_num++) { // One scale has 0 sharps, so we need to add 1 to the length.
@@ -117,17 +105,22 @@ export class DiatonicService {
           flat_chromatic_scale.push(s);
         });
 
+        // TODO: THIS DOESN'T WORK, WE NEED A SORT OVERRIDE
         sharp_chromatic_scale = this.rotateArray(sharp_chromatic_scale, this.deepIndexOf(sharp_chromatic_scale.sort(), mode_sharps[wrapped]));
         flat_chromatic_scale = this.rotateArray(flat_chromatic_scale, this.deepIndexOf(flat_chromatic_scale.sort(), mode_flats[wrapped]));
 
         // 'rotateArray' puts the correct note at the start of the scale. 
         sharp_scale = this.rotateArray(sharp_scale, this.deepIndexOf(sharp_scale, mode_sharps[wrapped]));
         flat_scale = this.rotateArray(flat_scale, this.deepIndexOf(flat_scale, mode_flats[wrapped]));
-        console.log("Scale: " + sharp_scale + "\t - Chromatic: " + sharp_chromatic_scale + "\t - Accidentals: " + sharp_accidentals);
-        console.log("Scale: " + flat_scale + "\t - Chromatic: " + flat_chromatic_scale + "\t - Accidentals: " + flat_accidentals);
+
+        // the 6 - modeIndex is because we're going backwards for flat scales
+        this.scales.push(new Scale(sharp_scale, sharp_accidentals, sharp_chromatic_scale, MODES[modeIndex]));
+        this.scales.push(new Scale(flat_scale, flat_accidentals, flat_chromatic_scale, MODES[6-modeIndex]));
       }
     }
   }
+
+
 
   deepIndexOf(arr: any[], obj: any): number {
     return arr.findIndex(function (cur) {
@@ -146,7 +139,7 @@ export class DiatonicService {
   }
 
 
-  getDiatonicTriadForScaleDegree(scaleDegree: number): Triad {
+  getDiatonicTriadForScaleDegree(scaleDegree: number): Triad { // TODO: mode should be refactored out of this class, the function should take it as an input.
 
     // This function creates a Triad for given scale degree. 'Diatonic Triad' means that the notes of the triad
     // will fall within the selected diatonic mode, no funky business.
@@ -182,10 +175,10 @@ export class DiatonicService {
       return Degrees.text[triad.degree].toUpperCase() + "+";
     }
     if (triad.matchShape(TriadShapes.sus2)) {
-      return Degrees.text[triad.degree].toUpperCase + "sus2";
+      return Degrees.text[triad.degree].toUpperCase() + "sus2";
     }
     if (triad.matchShape(TriadShapes.sus4)) {
-      return Degrees.text[triad.degree].toUpperCase + "sus4";
+      return Degrees.text[triad.degree].toUpperCase() + "sus4";
     }
   }
 
