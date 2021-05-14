@@ -1,5 +1,5 @@
-import { Injectable } from '@angular/core';
-import { Modes, Triad, TriadShapes, Degrees, Scale, MODES } from './diatonic'
+import { Injectable, ɵCompiler_compileModuleSync__POST_R3__ } from '@angular/core';
+import { Triad, TriadShapes, Degrees, Scale, MODE, ModeIntervals } from './diatonic-definitions'
 import { UtilService } from './util.service';
 
 @Injectable({
@@ -8,11 +8,9 @@ import { UtilService } from './util.service';
 
 export class DiatonicService {
 
-  mode: number[];
-  scales: Scale[] = [];
+  public generated_scales: Scale[] = [];
 
   constructor(private readonly util: UtilService) {
-    this.mode = Modes.ionian;
   }
 
   // @brief  knows all scales
@@ -52,7 +50,7 @@ export class DiatonicService {
         var flat_scale = Object.assign([], order_of_flats).sort();
 
         // We need our array index to wrap, because a scale with 7 sharps will start on the same natural note name as the scale with no sharps.
-        let wrapped = this.wrapIndex(scale_num, 7);
+        let wrapped = this.util.wrapIndex(scale_num);
 
         var sharp_accidentals: string[] = []; // we want to keep track of accidentals, so we can construct the appropriate chromatic note set for each scale
         var flat_accidentals: string[] = [];
@@ -62,8 +60,8 @@ export class DiatonicService {
           sharp_accidentals.push(order_of_sharps[i]); // If a note is sharped, we know that the natural is now an accidental, so add it to the accidentals array
           flat_accidentals.push(order_of_flats[i]);
           // "♮" 
-          sharp_scale[this.util.findIndexOf(sharp_scale, order_of_sharps[i])] += "#" // find the note in our scale and sharp it
-          flat_scale[this.util.findIndexOf(flat_scale, order_of_flats[i])] += "b"
+          sharp_scale[sharp_scale.indexOf(order_of_sharps[i])] += "#" // find the note in our scale and sharp it
+          flat_scale[flat_scale.indexOf(order_of_flats[i])] += "b"
           // This sharps the name / label of the scale if applicable.
           if (mode_sharps[wrapped] == order_of_sharps[i]) {
             mode_sharps[wrapped] += "#";
@@ -105,21 +103,21 @@ export class DiatonicService {
           flat_chromatic_scale.push(s);
         });
 
-        sharp_chromatic_scale = this.util.rotateArray(sharp_chromatic_scale, this.util.findIndexOf(this.util.sortArrayOfNotes(sharp_chromatic_scale), mode_sharps[wrapped]));
-        flat_chromatic_scale = this.util.rotateArray(flat_chromatic_scale, this.util.findIndexOf(this.util.sortArrayOfNotes(flat_chromatic_scale), mode_flats[wrapped]));
+        sharp_chromatic_scale = this.util.rotateArray(sharp_chromatic_scale, this.util.sortArrayOfNotes(sharp_chromatic_scale).indexOf(mode_sharps[wrapped]));
+        flat_chromatic_scale = this.util.rotateArray(flat_chromatic_scale, this.util.sortArrayOfNotes(flat_chromatic_scale).indexOf(mode_flats[wrapped]));
 
         // 'rotateArray' puts the correct note at the start of the scale. 
-        sharp_scale = this.util.rotateArray(sharp_scale, this.util.findIndexOf(sharp_scale, mode_sharps[wrapped]));
-        flat_scale = this.util.rotateArray(flat_scale, this.util.findIndexOf(flat_scale, mode_flats[wrapped]));
+        sharp_scale = this.util.rotateArray(sharp_scale, sharp_scale.indexOf(mode_sharps[wrapped]));
+        flat_scale = this.util.rotateArray(flat_scale, flat_scale.indexOf(mode_flats[wrapped]));
 
         // the 6 - modeIndex is because we're going backwards for flat scales
-        this.scales.push(new Scale(sharp_scale, sharp_accidentals, sharp_chromatic_scale, MODES[modeIndex]));
-        this.scales.push(new Scale(flat_scale, flat_accidentals, flat_chromatic_scale, MODES[6 - modeIndex]));
+        this.generated_scales.push(new Scale(sharp_scale, sharp_accidentals, sharp_chromatic_scale, MODE[modeIndex]));
+        this.generated_scales.push(new Scale(flat_scale, flat_accidentals, flat_chromatic_scale, MODE[6 - modeIndex]));
       }
     }
   }
 
-  getDiatonicTriadForScaleDegree(scaleDegree: number): Triad { // TODO: mode should be refactored out of this class, the function should take it as an input.
+  getDiatonicTriadForScaleDegree(scaleDegree: number, mode: number): Triad { // TODO: mode should be refactored out of this class, the function should take it as an input.
 
     // This function creates a Triad for given scale degree. 'Diatonic Triad' means that the notes of the triad
     // will fall within the selected diatonic mode, no funky business.
@@ -128,46 +126,56 @@ export class DiatonicService {
 
     let i = scaleDegree - 2; // arrays start at 0, but scale degrees start at 1, and there's no interval entry for the tonic.
 
-    let ii = this.wrapIndex(i + 1, 7);
-    let iii = this.wrapIndex(ii + 1, 7);
-    let iv = this.wrapIndex(iii + 1, 7);
-    let v = this.wrapIndex(iv + 1, 7);
+    let ii = this.util.wrapIndex(i + 1);
+    let iii = this.util.wrapIndex(ii + 1);
+    let iv = this.util.wrapIndex(iii + 1);
+    let v = this.util.wrapIndex(iv + 1);
 
-    let firstInterval = this.mode[ii] + this.mode[iii];
-    let secondInterval = this.mode[iv] + this.mode[v];
+    let firstInterval = ModeIntervals.all[mode][ii] + ModeIntervals.all[mode][iii];
+    let secondInterval = ModeIntervals.all[mode][iv] + ModeIntervals.all[mode][v];
 
     let triad = new Triad(firstInterval, secondInterval, scaleDegree);
 
     return triad;
   }
 
-  getLabelForTriadDegree(triad: Triad) {
+  getNotesForTriadInScale(triad: Triad, scale: Scale): string[] {
+    let index = triad.degree - 1;
+    let root = scale.notes[index];
+    let rotatedChroma = this.util.rotateArray(Object.assign([], scale.chromatic), scale.chromatic.indexOf(root));
+    // TODO: red alert, red alert, i think the findindexof function is FUCKED AND NEEDS TO BE REWRITTEN
+    let thirdIndex = triad.intervals[1];
+    let fifthIndex = thirdIndex + triad.intervals[2];
+
+    return [root, rotatedChroma[thirdIndex], rotatedChroma[fifthIndex]];
+  }
+
+  getLabelForTriadInScale(triad: Triad, scale: Scale) {
+
+    // uppercase is default, as it lets me use lowercase b as flat symbol more easily
+
+    let note = scale.notes[triad.degree-1];
+    let degree = Degrees.text[triad.degree];
+
     if (triad.matchShape(TriadShapes.major)) {
-      return Degrees.text[triad.degree].toUpperCase();
+      return note + " - " + degree;
     }
     if (triad.matchShape(TriadShapes.minor)) {
-      return Degrees.text[triad.degree].toLowerCase();
+      return note.toLowerCase() + " - " + degree.toLowerCase();
     }
     if (triad.matchShape(TriadShapes.diminished)) {
-      return Degrees.text[triad.degree].toLowerCase() + "o";
+      return note.toLowerCase() + " dim" + " - " + degree.toLowerCase() + "o";
     }
     if (triad.matchShape(TriadShapes.augmented)) {
-      return Degrees.text[triad.degree].toUpperCase() + "+";
+      return note + " aug" + " - " + degree + "+";
     }
     if (triad.matchShape(TriadShapes.sus2)) {
-      return Degrees.text[triad.degree].toUpperCase() + "sus2";
+      return note + " sus2" + " - " + degree + "sus2";
     }
     if (triad.matchShape(TriadShapes.sus4)) {
-      return Degrees.text[triad.degree].toUpperCase() + "sus4";
+      return note + " sus4" + " - " + degree + "sus4";
     }
+    return "?"
   }
-
-  wrapIndex(i: number, atValue: number): number {
-
-    // this is magic that makes scale degrees above 7 map to the correct value.
-
-    return (i % atValue + atValue) % atValue;
-  }
-
 }
 

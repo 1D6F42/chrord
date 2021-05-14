@@ -1,22 +1,22 @@
 <mat-form-field appearance="fill">
-  <mat-label>Pick a scale</mat-label>
-  <mat-select (selectionChange)="changeTonic()" [(value)]="selectedTonic">
+  <mat-label>Scale</mat-label>
+  <mat-select (selectionChange)="setScale()" [(value)]="selectedTonic">
     <mat-option *ngFor="let tonic of tonics" [value]="tonic">{{tonic}}</mat-option>
   </mat-select>
 </mat-form-field>
 <mat-form-field appearance="fill">
-  <mat-label>Pick a MODE</mat-label>
-  <mat-select (selectionChange)="changeMode()" [(value)]="selectedMode">
+  <mat-label>Mode</mat-label>
+  <mat-select (selectionChange)="setScale()" [(value)]="selectedMode">
     <mat-option *ngFor="let mode of modes" [value]="mode">{{mode}}</mat-option>
   </mat-select>
 </mat-form-field>
 <div>
-  <button (click)="chordButton(triad)" style="font-family: 'Times New Roman', Times, serif; font-size: 18px"
-    mat-raised-button *ngFor="let triad of diatonicTriads" mat-raised-button>{{triad[0]}}</button>
+  <button (click)="selectChord(triad[1])" class="classy-text" mat-raised-button *ngFor="let triad of diatonicTriads"
+    mat-raised-button>{{triad[0]}}</button>
 </div>
-<div style="margin-top:10px;font-family: 'Times New Roman', Times, serif; font-size: 18px">
-  Notes: <t *ngFor="let note of selectedScale.notes">{{note}} </t>
+<div class="classy-text">
+  Notes: <span *ngFor="let note of selectedScale.notes">{{note}} </span>
 </div>
-<div style="margin-top:10px;font-family: 'Times New Roman', Times, serif; font-size: 18px">
-  Chords:<br><t style="margin-left:10px" *ngFor="let chord of chordList">{{chord}}<br></t>
+<div class="classy-text">
+  Chords:<br><span class="classy-text" *ngFor="let chord of selectedChords">{{chord}}<br></span>
 </div>

@@ -34,20 +34,23 @@ export class UtilService {
     array[b] = temp;
   }
 
-  findIndexOf(arr: any[], obj: any): number {
-    return arr.findIndex(function (cur) {
-      return Object.keys(obj).every(function (key) {
-        return obj[key] === cur[key];
-      });
-    });
-  }
-
   rotateArray(array: any[], count: number): any[] {
     while (count--) {
       var tmp = array.shift();
       array.push(tmp);
     }
     return array;
+  }
+
+  wrapIndex(i: number, atValue?: number): number {
+    // This function defaults to 7 because we always want to wrap at 7
+    if (atValue === undefined) {
+      atValue = 7;
+    }
+
+    // this is magic that makes scale degrees above 'atValue' map to the correct value.
+
+    return (i % atValue + atValue) % atValue;
   }
 
 }
