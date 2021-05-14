@@ -1,4 +1,4 @@
-import { Injectable, ɵCompiler_compileModuleSync__POST_R3__ } from '@angular/core';
+import { Injectable } from '@angular/core';
 import { Triad, TriadShapes, Degrees, Scale, MODE, ModeIntervals } from './diatonic-definitions'
 import { UtilService } from './util.service';
 
