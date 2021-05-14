@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
-import { InjectSetupWrapper } from '@angular/core/testing';
 import { Modes, Triad, TriadShapes, Degrees, Scale, MODES } from './diatonic'
+import { UtilService } from './util.service';
 
 @Injectable({
   providedIn: 'root'
@@ -11,7 +11,7 @@ export class DiatonicService {
   mode: number[];
   scales: Scale[] = [];
 
-  constructor() {
+  constructor(private readonly util: UtilService) {
     this.mode = Modes.ionian;
   }
 
@@ -44,8 +44,8 @@ export class DiatonicService {
     // - Track which notes aren't in the scale, so we can build the correct set of 12 notes around the scale.
 
     for (var modeIndex = 0; modeIndex < num_modes; modeIndex++) {
-      var mode_sharps = this.rotateArray(Object.assign([], order_of_sharps), modeIndex); // rotate order_of_sharps so the 0-sharp scale is at the start
-      var mode_flats = this.rotateArray(Object.assign([], order_of_flats), modeIndex); // rotate order_of_flats so the 0-flat scale is at the start
+      var mode_sharps = this.util.rotateArray(Object.assign([], order_of_sharps), modeIndex); // rotate order_of_sharps so the 0-sharp scale is at the start
+      var mode_flats = this.util.rotateArray(Object.assign([], order_of_flats), modeIndex); // rotate order_of_flats so the 0-flat scale is at the start
       for (var scale_num = 0; scale_num < num_scales; scale_num++) { // One scale has 0 sharps, so we need to add 1 to the length.
         // Create a scale containing just the note names. We use this as a base scale to modify later.
         var sharp_scale = Object.assign([], order_of_sharps).sort();
@@ -62,8 +62,8 @@ export class DiatonicService {
           sharp_accidentals.push(order_of_sharps[i]); // If a note is sharped, we know that the natural is now an accidental, so add it to the accidentals array
           flat_accidentals.push(order_of_flats[i]);
           // "♮" 
-          sharp_scale[this.deepIndexOf(sharp_scale, order_of_sharps[i])] += "#" // find the note in our scale and sharp it
-          flat_scale[this.deepIndexOf(flat_scale, order_of_flats[i])] += "b"
+          sharp_scale[this.util.findIndexOf(sharp_scale, order_of_sharps[i])] += "#" // find the note in our scale and sharp it
+          flat_scale[this.util.findIndexOf(flat_scale, order_of_flats[i])] += "b"
           // This sharps the name / label of the scale if applicable.
           if (mode_sharps[wrapped] == order_of_sharps[i]) {
             mode_sharps[wrapped] += "#";
@@ -105,12 +105,12 @@ export class DiatonicService {
           flat_chromatic_scale.push(s);
         });
 
-        sharp_chromatic_scale = this.rotateArray(sharp_chromatic_scale, this.deepIndexOf(this.musicSort(sharp_chromatic_scale), mode_sharps[wrapped]));
-        flat_chromatic_scale = this.rotateArray(flat_chromatic_scale, this.deepIndexOf(this.musicSort(flat_chromatic_scale), mode_flats[wrapped]));
+        sharp_chromatic_scale = this.util.rotateArray(sharp_chromatic_scale, this.util.findIndexOf(this.util.sortArrayOfNotes(sharp_chromatic_scale), mode_sharps[wrapped]));
+        flat_chromatic_scale = this.util.rotateArray(flat_chromatic_scale, this.util.findIndexOf(this.util.sortArrayOfNotes(flat_chromatic_scale), mode_flats[wrapped]));
 
         // 'rotateArray' puts the correct note at the start of the scale. 
-        sharp_scale = this.rotateArray(sharp_scale, this.deepIndexOf(sharp_scale, mode_sharps[wrapped]));
-        flat_scale = this.rotateArray(flat_scale, this.deepIndexOf(flat_scale, mode_flats[wrapped]));
+        sharp_scale = this.util.rotateArray(sharp_scale, this.util.findIndexOf(sharp_scale, mode_sharps[wrapped]));
+        flat_scale = this.util.rotateArray(flat_scale, this.util.findIndexOf(flat_scale, mode_flats[wrapped]));
 
         // the 6 - modeIndex is because we're going backwards for flat scales
         this.scales.push(new Scale(sharp_scale, sharp_accidentals, sharp_chromatic_scale, MODES[modeIndex]));
@@ -118,50 +118,6 @@ export class DiatonicService {
       }
     }
   }
-
-  musicSort(array: string[]): any[] {
-    array.sort();
-    array.forEach((element, index) => {
-      if (element.length > 1) {
-        switch (element[1]) {
-          case "#": // sharps go after
-            if (array[index + 1] == element[0]) {
-              this.swapElements(array, index, index + 1);
-            }
-            break;
-          case "b": // flats go before
-            if (array[index - 1] == element[0]) {
-              this.swapElements(array, index, index - 1);
-            }
-            break;
-        }
-      }
-    });
-    return array;
-  }
-
-  swapElements(array: any[], a: number, b: number) {
-    const temp = array[a];
-    array[a] = array[b];
-    array[b] = temp;
-  }
-
-  deepIndexOf(arr: any[], obj: any): number {
-    return arr.findIndex(function (cur) {
-      return Object.keys(obj).every(function (key) {
-        return obj[key] === cur[key];
-      });
-    });
-  }
-
-  rotateArray(array: any[], count: number): any[] {
-    while (count--) {
-      var tmp = array.shift();
-      array.push(tmp);
-    }
-    return array;
-  }
-
 
   getDiatonicTriadForScaleDegree(scaleDegree: number): Triad { // TODO: mode should be refactored out of this class, the function should take it as an input.
 

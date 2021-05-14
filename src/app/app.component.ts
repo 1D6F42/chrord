@@ -50,7 +50,6 @@ export class AppComponent {
         this.selectedScale = scale;
       }
     });
-    console.log(this.selectedScale.chromatic)
   }
 
   chordButton(triad: [string, Triad]) {
