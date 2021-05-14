@@ -31,17 +31,21 @@ export class AppComponent {
         this.modes.push(key);
       }
     }
-    // set tonics
+    // get tonics
+    this.getTonics();
+    // set scale
+    this.setScale();
+    // set triads
+    this.getDiatonicTriads();
+  }
+
+  getTonics() {
     this.tonics = [];
     this.diatonic.generated_scales.forEach(scale => {
       if (scale.mode == this.selectedMode) {
         this.tonics.push(scale.notes[0]);
       }
     });
-    // set scale
-    this.setScale();
-    // set triads
-    this.getDiatonicTriads();
   }
 
   setScale() {
@@ -50,6 +54,7 @@ export class AppComponent {
         this.selectedScale = scale;
       }
     });
+    this.getTonics();
     this.getDiatonicTriads()
   }
 
