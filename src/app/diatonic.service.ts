@@ -12,50 +12,53 @@ export class DiatonicService {
   constructor() {
     this.mode = Modes.ionian;
 
+    // Mode	  Tonic relative
+    //        to major scale	    Interval sequence	    Example
+    // Ionian	      I	            W–W–H–W–W–W–H	    C–D–E–F–G–A–B–C
+    // Dorian	      ii	          W–H–W–W–W–H–W	    D–E–F–G–A–B–C–D
+    // Phrygian	    iii	          H–W–W–W–H–W–W	    E–F–G–A–B–C–D–E
+    // Lydian	      IV	          W–W–W–H–W–W–H	    F–G–A–B–C–D–E–F
+    // Mixolydian	  V	            W–W–H–W–W–H–W	    G–A–B–C–D–E–F–G
+    // Aeolian	    vi	          W–H–W–W–H–W–W	    A–B–C–D–E–F–G–A
+    // Locrian	    viiø	        H–W–W–H–W–W–W	    B–C–D–E–F–G–A–B
 
-    let notes = ["A", "B", "C", "D", "E", "F", "G"];
-    let clockwise = ["C", "G", "D", "A", "E", "B", "F"];
-    let counter = ["C", "F", "B", "E", "A", "D", "G"];
-    let sharps = ["F", "C", "G", "D", "A", "E", "B"];
-    let flats = ["B", "E", "A", "D", "G", "C", "F"];
+    // Test code to generate all 'sharp' keys for all modes.
+    // Flat keys will work the same way, but rotate the opposite way through the cof and accidentals arrays... TBD
 
-    // I am become death
+    let note_letters = ["A", "B", "C", "D", "E", "F", "G"]; 
+    let circle_of_fifths = ["C", "G", "D", "A", "E", "B", "F"]; // root notes, sharps / flats get added during scale construction
+    let order_of_accidentals = ["F", "C", "G", "D", "A", "E", "B"];
+    let mode_names = [ // ordered by their COF rotation index...
+      "ionian",
+      "mixolydian",
+      "dorian",
+      "aeolian",
+      "phrygian",
+      "locrian",
+      "lydian"
+  ]
 
-    for (var md = 0; md < 7; md++) {
+    // A mode can be represented as a rotation in the circle of fifths.
+    // This outer loop defines a 'modeIndex', which is used to rotate the 'cof' array
+    for (var modeIndex = 0; modeIndex < circle_of_fifths.length; modeIndex++) {
       var outSharps: string[] = []
-      console.log("Mode: " + Modes.offsets[md])
-      this.rotateArray(Object.assign([], clockwise), md).forEach((key, index) => {
-        var scale = Object.assign([], notes);
-        for (var i = 0; i < index; i++) {
-          scale[this.deepIndexOf(scale, sharps[i])] += "#"
-          if (key == sharps[i]) {
-            key += "#"
+      console.log("Mode: " + mode_names[modeIndex])
+      var cof = this.rotateArray(Object.assign([], circle_of_fifths), modeIndex) // gets the COF for each mode
+      for (var x = 0; x < circle_of_fifths.length + 1; x++) { // There are 8 sharp keys. Because one key has none, and then one for each entry in 'order_of_accidentals'
+        var scale = Object.assign([], note_letters); // make copy of note letters arr
+        let index = this.wrapIndex(x); // Turns 8 into 0, because the key with 7 accidentals will start on the same 'root' note name as the key with none.
+        // This loop applies the correct number of accidentals for the given step on the circle of fifths (sharps in this case).
+        for (var i = 0; i < x; i++) { 
+          scale[this.deepIndexOf(scale, order_of_accidentals[i])] += "#"
+          // Remember our 'circle_of_fifths' array doesn't include the accidentals, so we need to apply them if the note should be accidentalised.
+          if (cof[index] == order_of_accidentals[i]) { // compares the string values, ie if 'C' = 'C' then make it C#
+            cof[index] += "#"
           }
         }
-        outSharps.push(this.rotateArray(scale, this.deepIndexOf(scale, key)).toString())
-      });
-
-      // I think this is working but i need to work out why it's working
-
-      var outFlats: string[] = []
-      this.rotateArray(Object.assign([], counter), md).forEach((key, index) => {
-        var scale = Object.assign([], notes);
-        for (var i = 0; i < index; i++) {
-          scale[this.deepIndexOf(scale, flats[i])] += "b"
-          if (key == flats[i]) {
-            key += "b"
-          }
-        }
-        outFlats.push(this.rotateArray(scale, this.deepIndexOf(scale, key)).toString())
-      });
-
+        outSharps.push(this.rotateArray(scale, this.deepIndexOf(scale, cof[index])).toString())
+      }
       console.log(outSharps)
-      console.log(outFlats)
-
     }
-
-
-
   }
 
   deepIndexOf(arr: any[], obj: any): number {
@@ -118,7 +121,7 @@ export class DiatonicService {
     }
   }
 
-  wrapIndex(i: number): number {
+  wrapIndex(i: number): number { // todo: make this take array length
 
     // this is magic that makes scale degrees above 7 map to the correct value.
 

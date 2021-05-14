@@ -43,16 +43,6 @@ export class Degrees {
 export class Modes {
 
     // Defines the diatonic modes in interval values, with the first entry denoting the interval from degree i to ii
-    
-    public static offsets = [
-        "ionian",
-        "mixolydian",
-        "dorian",
-        "aeolian",
-        "phrygian",
-        "locrian",
-        "lydian"
-    ]
 
     public static ionian      = [2, 2, 1, 2, 2, 2, 1];
     public static dorian      = [2, 1, 2, 2, 2, 1, 2];
