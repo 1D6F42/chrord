@@ -1,18 +1,20 @@
-<mat-form-field appearance="fill">
-  <mat-label>Scale</mat-label>
-  <mat-select (selectionChange)="setScale()" [(value)]="selectedTonic">
-    <mat-option *ngFor="let tonic of tonics" [value]="tonic">{{tonic}}</mat-option>
-  </mat-select>
-</mat-form-field>
-<mat-form-field appearance="fill">
-  <mat-label>Mode</mat-label>
-  <mat-select (selectionChange)="setScale()" [(value)]="selectedMode">
-    <mat-option *ngFor="let mode of modes" [value]="mode">{{mode}}</mat-option>
-  </mat-select>
-</mat-form-field>
+<div class="drop-downs">
+  <mat-form-field appearance="fill">
+    <mat-label>Scale</mat-label>
+    <mat-select (selectionChange)="setScale()" [(value)]="selectedTonic">
+      <mat-option *ngFor="let tonic of tonics" [value]="tonic">{{tonic}}</mat-option>
+    </mat-select>
+  </mat-form-field>
+  <mat-form-field appearance="fill">
+    <mat-label>Mode</mat-label>
+    <mat-select (selectionChange)="setScale()" [(value)]="selectedMode">
+      <mat-option *ngFor="let mode of modes" [value]="mode">{{mode}}</mat-option>
+    </mat-select>
+  </mat-form-field>
+</div>
 <div>
-  <button (click)="selectChord(triad[1])" class="classy-text" mat-raised-button *ngFor="let triad of diatonicTriads"
-    mat-raised-button>{{triad[0]}}</button>
+  <button (click)="selectChord(triad[1])" class="classy-text"
+    mat-raised-button *ngFor="let triad of diatonicTriads" mat-raised-button>{{triad[0]}}</button>
 </div>
 <div class="classy-text">
   Notes: <span *ngFor="let note of selectedScale.notes">{{note}} </span>
