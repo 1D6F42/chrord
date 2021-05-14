@@ -16,4 +16,6 @@ Run `ng build` to build the project. The build artifacts will be stored in the `
 
 ## Deploy
 
-Run `ng deploy --base-href=https://1d6f42.github.io/chrord
+(Don't run this through git bash lmao)
+
+Run `ng deploy --base-href=/chrord/

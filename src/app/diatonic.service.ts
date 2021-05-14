@@ -1,4 +1,5 @@
 import { Injectable } from '@angular/core';
+import { InjectSetupWrapper } from '@angular/core/testing';
 import { Modes, Triad, TriadShapes, Degrees, Scale, MODES } from './diatonic'
 
 @Injectable({
@@ -29,7 +30,6 @@ export class DiatonicService {
 
     // Test code to generate all 'sharp' scales for all modes. A 'sharp' scale is a scale with sharps in it, instead of flats.
     // Flat scales will work the same way, but will rotate the opposite way through the arrays, because the order of sharps is opposite to the order of flats
-    // TODO: currently, when we do flats, C major (and its friends) will be duplicated in sharps / flats. not sure it matters though.
 
     let order_of_sharps = ["F", "C", "G", "D", "A", "E", "B"];
     let order_of_flats = ["B", "E", "A", "D", "G", "C", "F"];
@@ -52,10 +52,10 @@ export class DiatonicService {
         var flat_scale = Object.assign([], order_of_flats).sort();
 
         // We need our array index to wrap, because a scale with 7 sharps will start on the same natural note name as the scale with no sharps.
-        let wrapped = this.wrapIndex(scale_num);
+        let wrapped = this.wrapIndex(scale_num, 7);
 
         var sharp_accidentals: string[] = []; // we want to keep track of accidentals, so we can construct the appropriate chromatic note set for each scale
-        var flat_accidentals: string[] =[];
+        var flat_accidentals: string[] = [];
 
         // This loop will execute the same number of times that there are sharps, and sharp that many notes
         for (var i = 0; i < scale_num; i++) {
@@ -68,7 +68,7 @@ export class DiatonicService {
           if (mode_sharps[wrapped] == order_of_sharps[i]) {
             mode_sharps[wrapped] += "#";
           }
-          if(mode_flats[wrapped] == order_of_flats[i]){
+          if (mode_flats[wrapped] == order_of_flats[i]) {
             mode_flats[wrapped] += "b";
           }
         }
@@ -105,9 +105,8 @@ export class DiatonicService {
           flat_chromatic_scale.push(s);
         });
 
-        // TODO: THIS DOESN'T WORK, WE NEED A SORT OVERRIDE
-        sharp_chromatic_scale = this.rotateArray(sharp_chromatic_scale, this.deepIndexOf(sharp_chromatic_scale.sort(), mode_sharps[wrapped]));
-        flat_chromatic_scale = this.rotateArray(flat_chromatic_scale, this.deepIndexOf(flat_chromatic_scale.sort(), mode_flats[wrapped]));
+        sharp_chromatic_scale = this.rotateArray(sharp_chromatic_scale, this.deepIndexOf(this.musicSort(sharp_chromatic_scale), mode_sharps[wrapped]));
+        flat_chromatic_scale = this.rotateArray(flat_chromatic_scale, this.deepIndexOf(this.musicSort(flat_chromatic_scale), mode_flats[wrapped]));
 
         // 'rotateArray' puts the correct note at the start of the scale. 
         sharp_scale = this.rotateArray(sharp_scale, this.deepIndexOf(sharp_scale, mode_sharps[wrapped]));
@@ -115,12 +114,37 @@ export class DiatonicService {
 
         // the 6 - modeIndex is because we're going backwards for flat scales
         this.scales.push(new Scale(sharp_scale, sharp_accidentals, sharp_chromatic_scale, MODES[modeIndex]));
-        this.scales.push(new Scale(flat_scale, flat_accidentals, flat_chromatic_scale, MODES[6-modeIndex]));
+        this.scales.push(new Scale(flat_scale, flat_accidentals, flat_chromatic_scale, MODES[6 - modeIndex]));
       }
     }
   }
 
+  musicSort(array: string[]): any[] {
+    array.sort();
+    array.forEach((element, index) => {
+      if (element.length > 1) {
+        switch (element[1]) {
+          case "#": // sharps go after
+            if (array[index + 1] == element[0]) {
+              this.swapElements(array, index, index + 1);
+            }
+            break;
+          case "b": // flats go before
+            if (array[index - 1] == element[0]) {
+              this.swapElements(array, index, index - 1);
+            }
+            break;
+        }
+      }
+    });
+    return array;
+  }
 
+  swapElements(array: any[], a: number, b: number) {
+    const temp = array[a];
+    array[a] = array[b];
+    array[b] = temp;
+  }
 
   deepIndexOf(arr: any[], obj: any): number {
     return arr.findIndex(function (cur) {
@@ -148,10 +172,10 @@ export class DiatonicService {
 
     let i = scaleDegree - 2; // arrays start at 0, but scale degrees start at 1, and there's no interval entry for the tonic.
 
-    let ii = this.wrapIndex(i + 1);
-    let iii = this.wrapIndex(ii + 1);
-    let iv = this.wrapIndex(iii + 1);
-    let v = this.wrapIndex(iv + 1);
+    let ii = this.wrapIndex(i + 1, 7);
+    let iii = this.wrapIndex(ii + 1, 7);
+    let iv = this.wrapIndex(iii + 1, 7);
+    let v = this.wrapIndex(iv + 1, 7);
 
     let firstInterval = this.mode[ii] + this.mode[iii];
     let secondInterval = this.mode[iv] + this.mode[v];
@@ -182,11 +206,12 @@ export class DiatonicService {
     }
   }
 
-  wrapIndex(i: number): number { // todo: make this take array length
+  wrapIndex(i: number, atValue: number): number {
 
     // this is magic that makes scale degrees above 7 map to the correct value.
 
-    return (i % this.mode.length + this.mode.length) % this.mode.length;
+    return (i % atValue + atValue) % atValue;
   }
 
 }
+

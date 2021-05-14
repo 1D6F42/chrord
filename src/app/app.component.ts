@@ -49,15 +49,16 @@ export class AppComponent {
       if (this.selectedMode == scale.mode && this.selectedTonic == scale.notes[0]) {
         this.selectedScale = scale;
       }
-    })
+    });
+    console.log(this.selectedScale.chromatic)
   }
 
   chordButton(triad: [string, Triad]) {
 
     // doing this a kind of shit way, because we can't use the chromatic scale references until i have overridden the array sort in the diatonic service.
-    this.chordList.push([this.selectedScale.notes[this.diatonic.wrapIndex(triad[1].degree - 1)],
-      this.selectedScale.notes[this.diatonic.wrapIndex(triad[1].degree + 1)],
-      this.selectedScale.notes[this.diatonic.wrapIndex(triad[1].degree + 3)]]);
+    this.chordList.push([this.selectedScale.notes[this.diatonic.wrapIndex(triad[1].degree - 1, 7)],
+      this.selectedScale.notes[this.diatonic.wrapIndex(triad[1].degree + 1, 7)],
+      this.selectedScale.notes[this.diatonic.wrapIndex(triad[1].degree + 3, 7)]]);
 
   }
 

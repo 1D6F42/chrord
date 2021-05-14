@@ -40,7 +40,7 @@ export class Degrees {
 //     public static fLaTs  = ["A", "Bb", "Cb", "C", "Db", "D", "Eb", "Fb", "F", "Gb", "G", "Ab"];    
 // }
 
-export enum MODES {
+export enum MODES { // TODO: rename to MODE_NAMES
     lydian,
     ionian,
     mixolydian,
