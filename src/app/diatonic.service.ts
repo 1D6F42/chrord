@@ -64,14 +64,14 @@ export class DiatonicService {
           sharp_accidentals.push(order_of_sharps[i]); // If a note is sharped, we know that the natural is now an accidental, so add it to the accidentals array
           flat_accidentals.push(order_of_flats[i]); // same
           // "♮" 
-          sharp_scale[sharp_scale.indexOf(order_of_sharps[i])] += "♯" // find the note in our scale and sharp it
-          flat_scale[flat_scale.indexOf(order_of_flats[i])] += "♭"
+          sharp_scale[sharp_scale.indexOf(order_of_sharps[i])] += "#" // find the note in our scale and sharp it
+          flat_scale[flat_scale.indexOf(order_of_flats[i])] += "b"
           // This sharps the name / label of the scale if applicable.
           if (mode_sharps[wrapped] == order_of_sharps[i]) {
-            mode_sharps[wrapped] += "♯";
+            mode_sharps[wrapped] += "#";
           }
           if (mode_flats[wrapped] == order_of_flats[i]) {
-            mode_flats[wrapped] += "♭";
+            mode_flats[wrapped] += "b";
           }
         }
 
@@ -80,13 +80,13 @@ export class DiatonicService {
 
         // If there are less than 5 accidentals known, the remaining accidentals will be the remaining sharps from the first 5 order_of_sharps that aren't already in the scale.
         while (sharp_accidentals.length < 5) { // sharps / flats will have same length so don't have to repeat this for flats
-          sharp_accidentals.push(order_of_sharps[sharp_accidentals.length] + "♯");
-          flat_accidentals.push(order_of_flats[flat_accidentals.length] + "♭");
+          sharp_accidentals.push(order_of_sharps[sharp_accidentals.length] + "#");
+          flat_accidentals.push(order_of_flats[flat_accidentals.length] + "b");
         }
 
         // If there are more than 5 items in the 'accidentals' array, it means we 'sharped' more than 5 notes.
         // if this happens, we know that the first one / two entries in 'accidentals' will be F and C natural, because they are the first notes in order_of_accidentals.
-        // But in a scale with 6 or 7 sharps, these won't be accidentals, as they are enharmonic with B♯ and E♯. So we can remove them to get 5.
+        // But in a scale with 6 or 7 sharps, these won't be accidentals, as they are enharmonic with B# and E#. So we can remove them to get 5.
         while (sharp_accidentals.length > 5) {// sharps / flats will have same length so don't have to repeat this for flats
           sharp_accidentals.shift();
           flat_accidentals.shift();

@@ -12,12 +12,12 @@ export class UtilService {
     array.forEach((element, index) => {
       if (element.length > 1) {
         switch (element[1]) {
-          case "♯": // sharps go after
+          case "#": // sharps go after
             if (array[index + 1] == element[0]) {
               this.swapArrayElements(array, index, index + 1);
             }
             break;
-          case "♭": // flats go before
+          case "b": // flats go before
             if (array[index - 1] == element[0]) {
               this.swapArrayElements(array, index, index - 1);
             }
