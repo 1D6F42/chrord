@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 import { DiatonicService } from './diatonic.service';
-import { Triad, Scale, MODE } from './diatonic-definitions';
+import { Triad, Scale, MODES } from './diatonic-definitions';
 
 @Component({
   selector: 'app-root',
@@ -9,7 +9,7 @@ import { Triad, Scale, MODE } from './diatonic-definitions';
 })
 export class AppComponent {
 
-  selectedMode: string = MODE[1]; // 1 is ionian
+  selectedMode: string = MODES[1]; // 1 is ionian
   selectedTonic: string = "C"; // C Ionian is the most default key (fucking elusives tho)
   selectedScale: Scale;
   selectedChords: string[][] = [];
@@ -26,7 +26,7 @@ export class AppComponent {
   initialise() {
     // set modes
     this.modes = [];
-    for (let key in MODE) {
+    for (let key in MODES) {
       if (isNaN(Number(key))) {
         this.modes.push(key);
       }
@@ -66,7 +66,7 @@ export class AppComponent {
     this.diatonicTriads = [];
     this.selectedChords = [];
     for (var i = 1; i < 8; i++) {
-      let triad = this.diatonic.getDiatonicTriadForScaleDegree(i, MODE[this.selectedScale.mode]);
+      let triad = this.diatonic.getDiatonicTriadForScaleDegree(i, MODES[this.selectedScale.mode]);
       this.diatonicTriads.push([this.diatonic.getLabelForTriadInScale(triad, this.selectedScale), triad]);
     }
   }

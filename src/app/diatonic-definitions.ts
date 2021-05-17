@@ -25,14 +25,14 @@ export class Degrees {
     public static text = ["-", "I", "II", "III", "IV", "V", "VI", "VII"];
 }
 
-export enum MODE { // TODO: rename to MODE_NAMES
-    lydian,
-    ionian,
-    mixolydian,
-    dorian,
-    aeolian,
-    phrygian,
-    locrian
+export enum MODES {
+    Lydian,
+    Ionian,
+    Mixolydian,
+    Dorian,
+    Aeolian,
+    Phrygian,
+    Locrian
 }
 
 export class ModeIntervals {

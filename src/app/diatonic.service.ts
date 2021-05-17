@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { Triad, TriadShapes, Degrees, Scale, MODE, ModeIntervals } from './diatonic-definitions'
+import { Triad, TriadShapes, Degrees, Scale, MODES, ModeIntervals } from './diatonic-definitions'
 import { UtilService } from './util.service';
 
 @Injectable({
@@ -34,7 +34,7 @@ export class DiatonicService {
     // These arrays define the order of sharping / flatting. They are opposite each other wow.
 
     let order_of_sharps = ["F", "C", "G", "D", "A", "E", "B"];
-    let order_of_flats = ["B", "E", "A", "D", "G", "C", "F"];
+    let order_of_flats = Object.assign([], order_of_sharps).reverse();
 
     let num_modes = 7; // There are 7 diatonic modes
     let num_scales = 8; // There are 8 sharp scales and 8 flat scales (the no sharp/flat one gets duplicated...)
@@ -64,14 +64,14 @@ export class DiatonicService {
           sharp_accidentals.push(order_of_sharps[i]); // If a note is sharped, we know that the natural is now an accidental, so add it to the accidentals array
           flat_accidentals.push(order_of_flats[i]); // same
           // "♮" 
-          sharp_scale[sharp_scale.indexOf(order_of_sharps[i])] += "#" // find the note in our scale and sharp it
-          flat_scale[flat_scale.indexOf(order_of_flats[i])] += "b"
+          sharp_scale[sharp_scale.indexOf(order_of_sharps[i])] += "♯" // find the note in our scale and sharp it
+          flat_scale[flat_scale.indexOf(order_of_flats[i])] += "♭"
           // This sharps the name / label of the scale if applicable.
           if (mode_sharps[wrapped] == order_of_sharps[i]) {
-            mode_sharps[wrapped] += "#";
+            mode_sharps[wrapped] += "♯";
           }
           if (mode_flats[wrapped] == order_of_flats[i]) {
-            mode_flats[wrapped] += "b";
+            mode_flats[wrapped] += "♭";
           }
         }
 
@@ -80,13 +80,13 @@ export class DiatonicService {
 
         // If there are less than 5 accidentals known, the remaining accidentals will be the remaining sharps from the first 5 order_of_sharps that aren't already in the scale.
         while (sharp_accidentals.length < 5) { // sharps / flats will have same length so don't have to repeat this for flats
-          sharp_accidentals.push(order_of_sharps[sharp_accidentals.length] + "#");
-          flat_accidentals.push(order_of_flats[flat_accidentals.length] + "b");
+          sharp_accidentals.push(order_of_sharps[sharp_accidentals.length] + "♯");
+          flat_accidentals.push(order_of_flats[flat_accidentals.length] + "♭");
         }
 
         // If there are more than 5 items in the 'accidentals' array, it means we 'sharped' more than 5 notes.
         // if this happens, we know that the first one / two entries in 'accidentals' will be F and C natural, because they are the first notes in order_of_accidentals.
-        // But in a scale with 6 or 7 sharps, these won't be accidentals, as they are enharmonic with B# and E#. So we can remove them to get 5.
+        // But in a scale with 6 or 7 sharps, these won't be accidentals, as they are enharmonic with B♯ and E♯. So we can remove them to get 5.
         while (sharp_accidentals.length > 5) {// sharps / flats will have same length so don't have to repeat this for flats
           sharp_accidentals.shift();
           flat_accidentals.shift();
@@ -115,8 +115,8 @@ export class DiatonicService {
         flat_scale = this.util.rotateArray(flat_scale, flat_scale.indexOf(mode_flats[wrapped]));
 
         // the 6 - modeIndex is because we're going backwards for flat scales
-        this.generated_scales.push(new Scale(sharp_scale, sharp_accidentals, sharp_chromatic_scale, MODE[modeIndex]));
-        this.generated_scales.push(new Scale(flat_scale, flat_accidentals, flat_chromatic_scale, MODE[6 - modeIndex]));
+        this.generated_scales.push(new Scale(sharp_scale, sharp_accidentals, sharp_chromatic_scale, MODES[modeIndex]));
+        this.generated_scales.push(new Scale(flat_scale, flat_accidentals, flat_chromatic_scale, MODES[6 - modeIndex]));
       }
     }
   }
@@ -147,7 +147,6 @@ export class DiatonicService {
     let index = triad.degree - 1;
     let root = scale.notes[index];
     let rotatedChroma = this.util.rotateArray(Object.assign([], scale.chromatic), scale.chromatic.indexOf(root));
-    // TODO: red alert, red alert, i think the findindexof function is FUCKED AND NEEDS TO BE REWRITTEN
     let thirdIndex = triad.intervals[1];
     let fifthIndex = thirdIndex + triad.intervals[2];
 
