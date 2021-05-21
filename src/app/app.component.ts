@@ -85,9 +85,8 @@ export class AppComponent {
   // TODO: this doesn't take c-index into account (for determining SPN octave)
   testScale() {
     if (this.synth) {
-      const now = Tone.now()
-      this.selectedScale.notes.forEach((note, index) => {
-        note = note + "4"
+      const now = Tone.now();
+      this.diatonic.getSPNForScale(this.selectedScale, 4).forEach((note, index) => {
         this.synth.triggerAttackRelease(note, "8n", now + (index / 4));
       });
     }

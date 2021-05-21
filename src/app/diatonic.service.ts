@@ -156,7 +156,19 @@ export class DiatonicService {
 
     return triad;
   }
-  
+
+  getSPNForScale(scale: Scale, scale_octave: number): string[] {
+    var notes = [];
+    scale.notes.forEach(note => {
+      if (scale.chromatic.indexOf(note) >= scale.cIndex) {
+        notes.push(note + (scale_octave + 1));
+      } else {
+        notes.push(note + scale_octave);
+      }
+    });
+    return notes;
+  }
+
   // Gets the Scientific Pitch Notation for a triad. Returns an array of notes like "[A4, C#5, E5]"
   getSPNForTriad(triad: Triad, scale: Scale, scale_octave: number): string[] {
     // Get root note name
@@ -181,7 +193,7 @@ export class DiatonicService {
     // - whether the note is passed the first 'C' (rotation +  note index > c index)
     // - whether the note is passed the second 'C' ((rotation + note index - c index) > 12)
 
-    root  += scale_octave + (rotation >= scale.cIndex ? 1 : 0);
+    root += scale_octave + (rotation >= scale.cIndex ? 1 : 0);
     third += scale_octave + (rotation + thirdIndex >= scale.cIndex ? 1 + Math.floor((rotation + thirdIndex - scale.cIndex) / 12) : 0);
     fifth += scale_octave + (rotation + fifthIndex >= scale.cIndex ? 1 + Math.floor((rotation + fifthIndex - scale.cIndex) / 12) : 0);
 
