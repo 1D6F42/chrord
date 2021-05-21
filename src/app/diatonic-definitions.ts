@@ -50,12 +50,14 @@ export class ModeIntervals {
 
 export class Scale {
     notes: string[];
+    cIndex: number;
     accidentals: string[];
     chromatic: string[];
     mode: string;
 
-    constructor(notes: string[], accidentals: string[], chromatic: string[], mode: string) {
+    constructor(notes: string[], cIndex: number, accidentals: string[], chromatic: string[], mode: string) {
         this.notes = notes;
+        this.cIndex = cIndex;
         this.accidentals = accidentals;
         this.chromatic = chromatic;
         this.mode = mode;

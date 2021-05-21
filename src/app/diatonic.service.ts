@@ -110,18 +110,32 @@ export class DiatonicService {
         sharp_chromatic_scale = this.util.rotateArray(sharp_chromatic_scale, this.util.sortArrayOfNotes(sharp_chromatic_scale).indexOf(mode_sharps[wrapped]));
         flat_chromatic_scale = this.util.rotateArray(flat_chromatic_scale, this.util.sortArrayOfNotes(flat_chromatic_scale).indexOf(mode_flats[wrapped]));
 
+        // The octave component Scientific Pitch Notation (SPN, e.g. C#4, Eb2, etc) increments on each 'C' natural. We need to know what index in the
+        // scale the next C-natural is at so that we can generate notes correctly later.
+
+        var sharp_c_index = sharp_chromatic_scale.indexOf("C");
+        var flat_c_index = flat_chromatic_scale.indexOf("C");
+
+        // Sometimes C natural is called B Sharp because reasons
+        sharp_c_index = sharp_c_index == -1 ? sharp_chromatic_scale.indexOf("B#") : sharp_c_index;
+        flat_c_index = sharp_c_index == -1 ? flat_chromatic_scale.indexOf("B#") : flat_c_index;
+
+        // If it's a C natural scale, the index of the _next_ C is 12...
+        sharp_c_index = sharp_c_index == 0 ? 12 : sharp_c_index;
+        flat_c_index = flat_c_index == 0 ? 12 : flat_c_index;
+
         // 'rotateArray' puts the correct note at the start of the scale. 
         sharp_scale = this.util.rotateArray(sharp_scale, sharp_scale.indexOf(mode_sharps[wrapped]));
         flat_scale = this.util.rotateArray(flat_scale, flat_scale.indexOf(mode_flats[wrapped]));
 
-        // the 6 - modeIndex is because we're going backwards for flat scales
-        this.generated_scales.push(new Scale(sharp_scale, sharp_accidentals, sharp_chromatic_scale, MODES[modeIndex]));
-        this.generated_scales.push(new Scale(flat_scale, flat_accidentals, flat_chromatic_scale, MODES[6 - modeIndex]));
+        // the '6 - modeIndex' is because we're going backwards for flat scales
+        this.generated_scales.push(new Scale(sharp_scale, sharp_c_index, sharp_accidentals, sharp_chromatic_scale, MODES[modeIndex]));
+        this.generated_scales.push(new Scale(flat_scale, flat_c_index, flat_accidentals, flat_chromatic_scale, MODES[6 - modeIndex]));
       }
     }
   }
 
-  getDiatonicTriadForScaleDegree(scaleDegree: number, mode: number): Triad { // TODO: mode should be refactored out of this class, the function should take it as an input.
+  getDiatonicTriadForScaleDegree(scaleDegree: number, mode: number): Triad {
 
     // This function creates a Triad for given scale degree. 'Diatonic Triad' means that the notes of the triad
     // will fall within the selected diatonic mode, no funky business.
@@ -142,15 +156,36 @@ export class DiatonicService {
 
     return triad;
   }
+  
+  // Gets the Scientific Pitch Notation for a triad. Returns an array of notes like "[A4, C#5, E5]"
+  getSPNForTriad(triad: Triad, scale: Scale, scale_octave: number): string[] {
+    // Get root note name
+    let root = scale.notes[triad.degree - 1]; // -1 because degree 1 = array[0]
 
-  getNotesForTriadInScale(triad: Triad, scale: Scale): string[] {
-    let index = triad.degree - 1;
-    let root = scale.notes[index];
-    let rotatedChroma = this.util.rotateArray(Object.assign([], scale.chromatic), scale.chromatic.indexOf(root));
+    // Rotate the chromatic scale so that the root of the chord lies at index 0.
+    let rotation = scale.chromatic.indexOf(root);
+    let rotatedChroma = this.util.rotateArray(Object.assign([], scale.chromatic), rotation);
+
+    // Get the indexes of the third and fifth intervals on the rotated chromatic.
     let thirdIndex = triad.intervals[1];
     let fifthIndex = thirdIndex + triad.intervals[2];
 
-    return [root, rotatedChroma[thirdIndex], rotatedChroma[fifthIndex]];
+    // Get the note names for the third and fifth
+    let third = rotatedChroma[thirdIndex];
+    let fifth = rotatedChroma[fifthIndex];
+
+    // no cognitive complexity here (TODO: complicate less)
+
+    // These three lines add the correct octave number, based on:
+    // - the input 'scale_octave' var (base octave of the scale the chord is in)
+    // - whether the note is passed the first 'C' (rotation +  note index > c index)
+    // - whether the note is passed the second 'C' ((rotation + note index - c index) > 12)
+
+    root  += scale_octave + (rotation >= scale.cIndex ? 1 : 0);
+    third += scale_octave + (rotation + thirdIndex >= scale.cIndex ? 1 + Math.floor((rotation + thirdIndex - scale.cIndex) / 12) : 0);
+    fifth += scale_octave + (rotation + fifthIndex >= scale.cIndex ? 1 + Math.floor((rotation + fifthIndex - scale.cIndex) / 12) : 0);
+
+    return [root, third, fifth];
   }
 
   getLabelForTriadInScale(triad: Triad, scale: Scale) {
