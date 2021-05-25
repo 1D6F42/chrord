@@ -43,7 +43,7 @@ export class UtilService {
   }
 
   wrapIndex(i: number, atValue?: number): number {
-    // This function defaults to 7 because we always want to wrap at 7
+    // This function defaults to 7 because we pretty much always want to wrap at 7
     if (atValue === undefined) {
       atValue = 7;
     }

@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { Triad, TriadShapes, Degrees, Scale, MODES, ModeIntervals } from './diatonic-definitions'
+import { Triad, TriadShapes, Degrees, Scale, MODES } from './diatonic-definitions'
 import { UtilService } from './util.service';
 
 @Injectable({
@@ -135,29 +135,31 @@ export class DiatonicService {
     }
   }
 
-  getDiatonicTriadForScaleDegree(scaleDegree: number, mode: number): Triad {
+  getDiatonicTriadsForScale(scale: Scale): Triad[] {
 
-    // This function creates a Triad for given scale degree. 'Diatonic Triad' means that the notes of the triad
-    // will fall within the selected diatonic mode, no funky business.
+    // Returns all 7 diatonic triads for a given scale. Diatonic triads meaning triads containing only natural notes from the scale.
 
-    // Start by getting the array indexes that we need to add up
+    var indices: number[] = [];
+    scale.notes.forEach(note => {
+      indices.push(scale.chromatic.indexOf(note));
+    });
+    var triads: Triad[] = [];
+    indices.forEach((value, index) => {
+      let i = value;
+      let iii = indices[this.util.wrapIndex(index + 2)]
+      let v = indices[this.util.wrapIndex(index + 4)]
 
-    let i = scaleDegree - 2; // arrays start at 0, but scale degrees start at 1, and there's no interval entry for the tonic.
+      if (iii < i) iii += 12;
+      if (v < i) v += 12;
 
-    let ii = this.util.wrapIndex(i + 1);
-    let iii = this.util.wrapIndex(ii + 1);
-    let iv = this.util.wrapIndex(iii + 1);
-    let v = this.util.wrapIndex(iv + 1);
+      triads.push(new Triad(iii - i, v - iii, index + 1));
 
-    let firstInterval = ModeIntervals.all[mode][ii] + ModeIntervals.all[mode][iii];
-    let secondInterval = ModeIntervals.all[mode][iv] + ModeIntervals.all[mode][v];
+    });
 
-    let triad = new Triad(firstInterval, secondInterval, scaleDegree);
-
-    return triad;
+    return triads;
   }
 
-  getSPNForScale(scale: Scale, scale_octave: number): string[] {
+  getPitchNotationForScale(scale: Scale, scale_octave: number): string[] {
     var notes = [];
     scale.notes.forEach(note => {
       if (scale.chromatic.indexOf(note) >= scale.cIndex) {
@@ -170,7 +172,7 @@ export class DiatonicService {
   }
 
   // Gets the Scientific Pitch Notation for a triad. Returns an array of notes like "[A4, C#5, E5]"
-  getSPNForTriad(triad: Triad, scale: Scale, scale_octave: number): string[] {
+  getPitchNotationForTriad(triad: Triad, scale: Scale, scale_octave: number): string[] {
     // Get root note name
     let root = scale.notes[triad.degree - 1]; // -1 because degree 1 = array[0]
 

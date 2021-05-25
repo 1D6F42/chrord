@@ -63,14 +63,13 @@ export class AppComponent {
   getDiatonicTriads() {
     this.diatonicTriads = [];
     this.selectedChords = [];
-    for (var i = 1; i < 8; i++) {
-      let triad = this.diatonic.getDiatonicTriadForScaleDegree(i, MODES[this.selectedScale.mode]);
+    this.diatonic.getDiatonicTriadsForScale(this.selectedScale).forEach(triad => {
       this.diatonicTriads.push([this.diatonic.getLabelForTriadInScale(triad, this.selectedScale), triad]);
-    }
+    });
   }
 
   selectChord(triad: Triad) {
-    this.selectedChords.push(this.diatonic.getSPNForTriad(triad, this.selectedScale, 3));
+    this.selectedChords.push(this.diatonic.getPitchNotationForTriad(triad, this.selectedScale, 3));
   }
 
   // TODO: make this automatic when play button is pressed.
@@ -86,7 +85,7 @@ export class AppComponent {
   testScale() {
     if (this.synth) {
       const now = Tone.now();
-      this.diatonic.getSPNForScale(this.selectedScale, 4).forEach((note, index) => {
+      this.diatonic.getPitchNotationForScale(this.selectedScale, 4).forEach((note, index) => {
         this.synth.triggerAttackRelease(note, "8n", now + (index / 4));
       });
     }

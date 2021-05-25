@@ -35,19 +35,6 @@ export enum MODES {
     Locrian
 }
 
-export class ModeIntervals {
-
-    // Defines the interval values of the diatonic modes, with the first entry denoting the interval from degree i to ii
-    // same order as above.
-    public static all = [[2, 2, 2, 1, 2, 2, 1],
-                        [2, 2, 1, 2, 2, 2, 1],
-                        [2, 2, 1, 2, 2, 1, 2],
-                        [2, 1, 2, 2, 2, 1, 2],
-                        [2, 1, 2, 2, 1, 2, 2],
-                        [1, 2, 2, 2, 1, 2, 2],
-                        [1, 2, 2, 1, 2, 2, 2]];
-}
-
 export class Scale {
     notes: string[];
     cIndex: number;
