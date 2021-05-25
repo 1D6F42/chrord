@@ -1,27 +1,4 @@
-<div class="drop-downs">
-  <mat-form-field appearance="fill">
-    <mat-label>Scale</mat-label>
-    <mat-select (selectionChange)="setScale()" [(value)]="selectedTonic">
-      <mat-option *ngFor="let tonic of tonics" [value]="tonic">{{tonic}}</mat-option>
-    </mat-select>
-  </mat-form-field>
-  <mat-form-field appearance="fill">
-    <mat-label>Mode</mat-label>
-    <mat-select (selectionChange)="setScale()" [(value)]="selectedMode">
-      <mat-option *ngFor="let mode of modes" [value]="mode">{{mode}}</mat-option>
-    </mat-select>
-  </mat-form-field>
-  <button mat-mini-fab class="icon-button" (click)="enableAudio()"><mat-icon>{{volume_icon}}</mat-icon></button>
-</div>
-<div>
-  <button (click)="selectChord(triad[1])" class="classy-text"
-    mat-raised-button *ngFor="let triad of diatonicTriads" mat-raised-button>{{triad[0]}}</button>
-</div>
-<div class="classy-text">
-  Notes: <span *ngFor="let note of selectedScale.notes">{{note}} </span>
-</div>
-<div class="classy-text">
-  Selected Chords:<br><span class="classy-text" *ngFor="let chord of selectedChords">{{chord}}<br></span>
-</div>
-
-<button mat-mini-fab class="icon-button" (click)="testChords()"><mat-icon>play_arrow</mat-icon></button>
+<h3>Chrord</h3>
+<mat-divider style="margin-top: 50px;"></mat-divider>
+<p>This is testing panel:</p>
+<app-testing-panel></app-testing-panel>
