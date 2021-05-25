@@ -1,4 +1,14 @@
-export class Intervals {
+export enum MODES {
+    Lydian,
+    Ionian,
+    Mixolydian,
+    Dorian,
+    Aeolian,
+    Phrygian,
+    Locrian
+}
+
+export class Intervals { // this could be an enum idiot
     public static unison = 0;
     public static minorSecond = 1; // semitone
     public static majorSecond = 2; // tone
@@ -25,45 +35,33 @@ export class Degrees {
     public static text = ["-", "I", "II", "III", "IV", "V", "VI", "VII"];
 }
 
-export enum MODES {
-    Lydian,
-    Ionian,
-    Mixolydian,
-    Dorian,
-    Aeolian,
-    Phrygian,
-    Locrian
-}
-
 export class Scale {
-    notes: string[];
-    cIndex: number;
-    accidentals: string[];
-    chromatic: string[];
-    mode: string;
+    notes: string[];        // Text representation of notes in the scale, e.g. ["C", "D", "E", "F", "G", "A", "B"];
+    c_index: number;        // The index of c-natural (or B#) in the scale, used to determine pitch notation, e.g. C#4
+    accidentals: string[];  // The notes that are not natural to the scale. Not used anywhere yet.
+    chromatic: string[];    // The chromatic scale of 12 notes that this scale of 7 notes is based on. 
+    mode: string;           // The mode...
 
-    constructor(notes: string[], cIndex: number, accidentals: string[], chromatic: string[], mode: string) {
+    constructor(notes: string[], c_index: number, accidentals: string[], chromatic: string[], mode: string) {
         this.notes = notes;
-        this.cIndex = cIndex;
+        this.c_index = c_index;
         this.accidentals = accidentals;
         this.chromatic = chromatic;
         this.mode = mode;
     }
 }
 
-export class Triad {
-
-    // A triad is defined by the intervals between its notes, and optionally, the scale degree that it starts on.
+export class Chord {
+    // ... a chord is defined by it's chromatic intervals and the degree that it starts on. 
+    // The degree is optional, because we might want to treat the chord only according to its shape.
 
     degree: number;
     intervals: number[]
 
-    constructor(firstInterval: number, secondInterval: number, degree?: number) {
-        this.intervals = [Intervals.unison, firstInterval, secondInterval];
+    constructor(intervals: number[], degree?: number){
+        this.intervals = intervals;
         this.degree = degree;
     }
-
-    // todo: create second constructor taking array of 3 intervals, for making from TriadShapes
 
     matchShape(shape: number[]): boolean {
 
@@ -79,11 +77,11 @@ export class Triad {
     }
 }
 
-export class TriadShapes {
-    public static major = [Intervals.unison, Intervals.majorThird, Intervals.minorThird];
-    public static minor = [Intervals.unison, Intervals.minorThird, Intervals.majorThird];
-    public static diminished = [Intervals.unison, Intervals.minorThird, Intervals.minorThird];
-    public static augmented = [Intervals.unison, Intervals.majorThird, Intervals.majorThird];
-    public static sus2 = [Intervals.unison, Intervals.majorSecond, Intervals.perfectFourth];
-    public static sus4 = [Intervals.unison, Intervals.perfectFourth, Intervals.majorSecond];
+export class ChordShapes {
+    public static major = [Intervals.majorThird, Intervals.minorThird];
+    public static minor = [Intervals.minorThird, Intervals.majorThird];
+    public static diminished = [Intervals.minorThird, Intervals.minorThird];
+    public static augmented = [Intervals.majorThird, Intervals.majorThird];
+    public static sus2 = [Intervals.majorSecond, Intervals.perfectFourth];
+    public static sus4 = [Intervals.perfectFourth, Intervals.majorSecond];
 }

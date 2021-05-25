@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 import { DiatonicService } from './diatonic.service';
-import { Triad, Scale, MODES } from './diatonic-definitions';
+import { Chord, Scale, MODES } from './diatonic-definitions';
 import * as Tone from 'tone'
 
 @Component({
@@ -64,12 +64,12 @@ export class AppComponent {
     this.diatonicTriads = [];
     this.selectedChords = [];
     this.diatonic.getDiatonicTriadsForScale(this.selectedScale).forEach(triad => {
-      this.diatonicTriads.push([this.diatonic.getLabelForTriadInScale(triad, this.selectedScale), triad]);
+      this.diatonicTriads.push([this.diatonic.getLabelForChordInScale(triad, this.selectedScale), triad]);
     });
   }
 
-  selectChord(triad: Triad) {
-    this.selectedChords.push(this.diatonic.getPitchNotationForTriad(triad, this.selectedScale, 3));
+  selectChord(chord: Chord) {
+    this.selectedChords.push(this.diatonic.getPitchNotationForChord(chord, this.selectedScale, 3));
   }
 
   // TODO: make this automatic when play button is pressed.

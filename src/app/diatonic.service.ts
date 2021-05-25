@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { Triad, TriadShapes, Degrees, Scale, MODES } from './diatonic-definitions'
+import { Degrees, Scale, MODES, Chord, ChordShapes } from './diatonic-definitions'
 import { UtilService } from './util.service';
 
 @Injectable({
@@ -135,7 +135,7 @@ export class DiatonicService {
     }
   }
 
-  getDiatonicTriadsForScale(scale: Scale): Triad[] {
+  getDiatonicTriadsForScale(scale: Scale): Chord[] {
 
     // Returns all 7 diatonic triads for a given scale. Diatonic triads meaning triads containing only natural notes from the scale.
 
@@ -143,7 +143,7 @@ export class DiatonicService {
     scale.notes.forEach(note => {
       indices.push(scale.chromatic.indexOf(note));
     });
-    var triads: Triad[] = [];
+    var triads: Chord[] = [];
     indices.forEach((value, index) => {
       let i = value;
       let iii = indices[this.util.wrapIndex(index + 2)]
@@ -152,7 +152,7 @@ export class DiatonicService {
       if (iii < i) iii += 12;
       if (v < i) v += 12;
 
-      triads.push(new Triad(iii - i, v - iii, index + 1));
+      triads.push(new Chord([iii - i, v - iii], index + 1));
 
     });
 
@@ -162,7 +162,7 @@ export class DiatonicService {
   getPitchNotationForScale(scale: Scale, scale_octave: number): string[] {
     var notes = [];
     scale.notes.forEach(note => {
-      if (scale.chromatic.indexOf(note) >= scale.cIndex) {
+      if (scale.chromatic.indexOf(note) >= scale.c_index) {
         notes.push(note + (scale_octave + 1));
       } else {
         notes.push(note + scale_octave);
@@ -171,18 +171,18 @@ export class DiatonicService {
     return notes;
   }
 
-  // Gets the Scientific Pitch Notation for a triad. Returns an array of notes like "[A4, C#5, E5]"
-  getPitchNotationForTriad(triad: Triad, scale: Scale, scale_octave: number): string[] {
+  // Gets the Scientific Pitch Notation for a chord. Returns an array of notes like "[A4, C#5, E5]"
+  getPitchNotationForChord(chord: Chord, scale: Scale, scale_octave: number): string[] {
     // Get root note name
-    let root = scale.notes[triad.degree - 1]; // -1 because degree 1 = array[0]
+    let root = scale.notes[chord.degree - 1]; // -1 because degree 1 = array[0]
 
     // Rotate the chromatic scale so that the root of the chord lies at index 0.
     let rotation = scale.chromatic.indexOf(root);
     let rotatedChroma = this.util.rotateArray(Object.assign([], scale.chromatic), rotation);
 
     // Get the indexes of the third and fifth intervals on the rotated chromatic.
-    let thirdIndex = triad.intervals[1];
-    let fifthIndex = thirdIndex + triad.intervals[2];
+    let thirdIndex = chord.intervals[0];
+    let fifthIndex = thirdIndex + chord.intervals[1];
 
     // Get the note names for the third and fifth
     let third = rotatedChroma[thirdIndex];
@@ -195,36 +195,36 @@ export class DiatonicService {
     // - whether the note is passed the first 'C' (rotation +  note index > c index)
     // - whether the note is passed the second 'C' ((rotation + note index - c index) > 12)
 
-    root += scale_octave + (rotation >= scale.cIndex ? 1 : 0);
-    third += scale_octave + (rotation + thirdIndex >= scale.cIndex ? 1 + Math.floor((rotation + thirdIndex - scale.cIndex) / 12) : 0);
-    fifth += scale_octave + (rotation + fifthIndex >= scale.cIndex ? 1 + Math.floor((rotation + fifthIndex - scale.cIndex) / 12) : 0);
+    root += scale_octave + (rotation >= scale.c_index ? 1 : 0);
+    third += scale_octave + (rotation + thirdIndex >= scale.c_index ? 1 + Math.floor((rotation + thirdIndex - scale.c_index) / 12) : 0);
+    fifth += scale_octave + (rotation + fifthIndex >= scale.c_index ? 1 + Math.floor((rotation + fifthIndex - scale.c_index) / 12) : 0);
 
     return [root, third, fifth];
   }
 
-  getLabelForTriadInScale(triad: Triad, scale: Scale) {
+  getLabelForChordInScale(chord: Chord, scale: Scale) {
 
     // uppercase is default, as it lets me use lowercase b as flat symbol more easily
 
-    let note = scale.notes[triad.degree - 1];
-    let degree = Degrees.text[triad.degree];
+    let note = scale.notes[chord.degree - 1];
+    let degree = Degrees.text[chord.degree];
 
-    if (triad.matchShape(TriadShapes.major)) {
+    if (chord.matchShape(ChordShapes.major)) {
       return note + " - " + degree;
     }
-    if (triad.matchShape(TriadShapes.minor)) {
+    if (chord.matchShape(ChordShapes.minor)) {
       return note.toLowerCase() + " - " + degree.toLowerCase();
     }
-    if (triad.matchShape(TriadShapes.diminished)) {
+    if (chord.matchShape(ChordShapes.diminished)) {
       return note.toLowerCase() + " dim" + " - " + degree.toLowerCase() + "o";
     }
-    if (triad.matchShape(TriadShapes.augmented)) {
+    if (chord.matchShape(ChordShapes.augmented)) {
       return note + " aug" + " - " + degree + "+";
     }
-    if (triad.matchShape(TriadShapes.sus2)) {
+    if (chord.matchShape(ChordShapes.sus2)) {
       return note + " sus2" + " - " + degree + "sus2";
     }
-    if (triad.matchShape(TriadShapes.sus4)) {
+    if (chord.matchShape(ChordShapes.sus4)) {
       return note + " sus4" + " - " + degree + "sus4";
     }
     return "?"
