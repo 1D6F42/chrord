@@ -139,16 +139,22 @@ export class DiatonicService {
 
     // Returns all 7 diatonic triads for a given scale. Diatonic triads meaning triads containing only natural notes from the scale.
 
+    // Getting the indices of the notes in this scale on the chromatic will let us find the intervals between notes on the diatonic triad.
+
     var indices: number[] = [];
     scale.notes.forEach(note => {
       indices.push(scale.chromatic.indexOf(note));
     });
+
     var triads: Chord[] = [];
     indices.forEach((value, index) => {
+
+      // Get the 1, 3 and 5 notes:
       let i = value;
       let iii = indices[this.util.wrapIndex(index + 2)]
       let v = indices[this.util.wrapIndex(index + 4)]
 
+      // Fix wrapping if necessary (if a note has trespassed into the next octave)
       if (iii < i) iii += 12;
       if (v < i) v += 12;
 
@@ -160,6 +166,9 @@ export class DiatonicService {
   }
 
   getPitchNotationForScale(scale: Scale, scale_octave: number): string[] {
+
+    // Simple util function to get pitch notation for notes in a scale
+
     var notes = [];
     scale.notes.forEach(note => {
       if (scale.chromatic.indexOf(note) >= scale.c_index) {
@@ -172,6 +181,9 @@ export class DiatonicService {
   }
 
   // Gets the Scientific Pitch Notation for a chord. Returns an array of notes like "[A4, C#5, E5]"
+
+  // TODO: needs a scary refactor to make it work for chords other than triads...
+
   getPitchNotationForChord(chord: Chord, scale: Scale, scale_octave: number): string[] {
     // Get root note name
     let root = scale.notes[chord.degree - 1]; // -1 because degree 1 = array[0]
@@ -204,7 +216,10 @@ export class DiatonicService {
 
   getLabelForChordInScale(chord: Chord, scale: Scale) {
 
+    // TODO: only triads ATM
+
     // uppercase is default, as it lets me use lowercase b as flat symbol more easily
+    // using the _actual_ flat symbol doesn't work with tone.js ironically.
 
     let note = scale.notes[chord.degree - 1];
     let degree = Degrees.text[chord.degree];
