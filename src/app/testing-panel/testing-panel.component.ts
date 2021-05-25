@@ -24,7 +24,6 @@ export class TestingPanelComponent {
   synth: Tone.PolySynth;
 
   constructor(private readonly diatonic: DiatonicService) {
-    diatonic.knowAllScales();
     this.initialise();
   }
 
@@ -46,6 +45,7 @@ export class TestingPanelComponent {
         this.selectedScale = scale;
       }
     });
+
     this.getTonics();
     this.getDiatonicTriads();
     this.testScale();

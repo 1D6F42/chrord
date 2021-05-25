@@ -11,6 +11,7 @@ export class DiatonicService {
   public generated_scales: Scale[] = [];
 
   constructor(private readonly util: UtilService) {
+    this.knowAllScales();
   }
 
   // @brief  knows all scales
