@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, ɵCompiler_compileModuleSync__POST_R3__ } from '@angular/core';
 import { Degrees, Scale, MODES, Chord, ChordShapes } from './diatonic-definitions'
 import { UtilService } from './util.service';
 
@@ -166,9 +166,9 @@ export class DiatonicService {
     return triads;
   }
 
-  getPitchNotationForScale(scale: Scale, scale_octave: number): string[] {
+  getPitchesInScale(scale: Scale, scale_octave: number): string[] {
 
-    // Simple util function to get pitch notation for notes in a scale
+    // Simple function to get pitch notation for notes in a scale
 
     var notes = [];
     scale.notes.forEach(note => {
@@ -182,37 +182,41 @@ export class DiatonicService {
   }
 
   // Gets the Scientific Pitch Notation for a chord. Returns an array of notes like "[A4, C#5, E5]"
+  getPitchesInChord(chord: Chord, scale: Scale, octave?: number): string[] {
 
-  // TODO: needs a scary refactor to make it work for chords other than triads...
+    // Default to middle octave
+    if (octave === undefined) {
+      octave = 3;
+    }
 
-  getPitchNotationForChord(chord: Chord, scale: Scale, scale_octave: number): string[] {
-    // Get root note name
-    let root = scale.notes[chord.degree - 1]; // -1 because degree 1 = array[0]
+    var notes: string[] = []; // -1 because degree 1 = array[0];
+    
+    // get root note name
+    var root = scale.notes[chord.degree - 1];
 
-    // Rotate the chromatic scale so that the root of the chord lies at index 0.
-    let rotation = scale.chromatic.indexOf(root);
-    let rotatedChroma = this.util.rotateArray(Object.assign([], scale.chromatic), rotation);
+    // get the chromatic scale index of the root note
+    var note_index = scale.chromatic.indexOf(root);
 
-    // Get the indexes of the third and fifth intervals on the rotated chromatic.
-    let thirdIndex = chord.intervals[0];
-    let fifthIndex = thirdIndex + chord.intervals[1];
+    // Add the pitch octave to the root (+1 if it's above the index of 'C')
+    root += note_index >= scale.c_index ? octave + 1 : octave;
 
-    // Get the note names for the third and fifth
-    let third = rotatedChroma[thirdIndex];
-    let fifth = rotatedChroma[fifthIndex];
+    notes.push(root);
 
-    // no cognitive complexity here (TODO: complicate less)
+    chord.intervals.forEach(interval => {
+      note_index += interval;
 
-    // These three lines add the correct octave number, based on:
-    // - the input 'scale_octave' var (base octave of the scale the chord is in)
-    // - whether the note is passed the first 'C' (rotation +  note index > c index)
-    // - whether the note is passed the second 'C' ((rotation + note index - c index) > 12)
+      // The following line adds the correct octave number, based on:
+      // - The input 'octave' var (base octave of the scale the chord is in)
+      // - whether the note is passed the first 'C' (note index > c_index)
+      // - whether the note is passed x additional 'C's (noteindex - c index) / 12
 
-    root += scale_octave + (rotation >= scale.c_index ? 1 : 0);
-    third += scale_octave + (rotation + thirdIndex >= scale.c_index ? 1 + Math.floor((rotation + thirdIndex - scale.c_index) / 12) : 0);
-    fifth += scale_octave + (rotation + fifthIndex >= scale.c_index ? 1 + Math.floor((rotation + fifthIndex - scale.c_index) / 12) : 0);
+      let pitch_octave = note_index >= scale.c_index ? octave + 1 + Math.floor((note_index - scale.c_index) / 12) : octave;
 
-    return [root, third, fifth];
+      let note = scale.chromatic[this.util.wrapIndex(note_index, 12)];
+      notes.push(note + pitch_octave);
+    });
+
+    return notes;
   }
 
   getLabelForChordInScale(chord: Chord, scale: Scale) {

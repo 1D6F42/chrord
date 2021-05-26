@@ -10,7 +10,7 @@ import * as Tone from 'tone'
 })
 export class TestingPanelComponent {
 
-  selectedMode: string = MODES[1]; // 1 is ionian (major)
+  selectedMode: string = MODES[1]; // 1 is ionian (major / elusive)
   selectedTonic: string = "C"; // C Ionian is the most default key
   selectedScale: Scale;
   selectedChords: string[][] = [];
@@ -69,7 +69,7 @@ export class TestingPanelComponent {
   }
 
   selectChord(chord: Chord) {
-    this.selectedChords.push(this.diatonic.getPitchNotationForChord(chord, this.selectedScale, 3));
+    this.selectedChords.push(this.diatonic.getPitchesInChord(chord, this.selectedScale));
   }
 
   // TODO: make this automatic when play button is pressed.
@@ -84,7 +84,7 @@ export class TestingPanelComponent {
   testScale() {
     if (this.synth) {
       const now = Tone.now();
-      this.diatonic.getPitchNotationForScale(this.selectedScale, 4).forEach((note, index) => {
+      this.diatonic.getPitchesInScale(this.selectedScale, 4).forEach((note, index) => {
         this.synth.triggerAttackRelease(note, "8n", now + (index / 4));
       });
     }
