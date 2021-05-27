@@ -17,7 +17,7 @@ export class ChordComponent implements OnInit {
   }
 
   notes(chord: Chord) {
-    return this.diatonic.getPitchesInChord(chord, this.diatonic.activeScale)
+    return this.diatonic.getPitchesInChord(chord)
   }
 
 }

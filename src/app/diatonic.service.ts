@@ -138,7 +138,11 @@ export class DiatonicService {
     }
   }
 
-  getDiatonicTriadsForScale(scale: Scale): Chord[] {
+  getDiatonicTriads(scale?: Scale): Chord[] {
+
+    if (scale === undefined) {
+      scale = this.activeScale;
+    }
 
     // Returns all 7 diatonic triads for a given scale. Diatonic triads meaning triads containing only natural notes from the scale.
 
@@ -168,7 +172,11 @@ export class DiatonicService {
     return triads;
   }
 
-  getPitchesInScale(scale: Scale, scale_octave: number): string[] {
+  getPitchesInScale(scale_octave: number, scale?: Scale): string[] {
+
+    if (scale === undefined) {
+      scale = this.activeScale;
+    }
 
     // Simple function to get pitch notation for notes in a scale
 
@@ -184,15 +192,19 @@ export class DiatonicService {
   }
 
   // Gets the Scientific Pitch Notation for a chord. Returns an array of notes like "[A4, C#5, E5]"
-  getPitchesInChord(chord: Chord, scale: Scale, octave?: number): string[] {
+  getPitchesInChord(chord: Chord, scale?: Scale, octave?: number): string[] {
 
     // Default to middle octave
     if (octave === undefined) {
       octave = 3;
     }
 
+    if (scale === undefined) {
+      scale = this.activeScale;
+    }
+
     var notes: string[] = []; // -1 because degree 1 = array[0];
-    
+
     // get root note name
     var root = scale.notes[chord.degree - 1];
 
@@ -221,7 +233,11 @@ export class DiatonicService {
     return notes;
   }
 
-  getLabelForChordInScale(chord: Chord, scale: Scale) {
+  getLabelsForChord(chord: Chord, scale?: Scale) {
+
+    if (scale === undefined) {
+      scale = this.activeScale;
+    }
 
     // TODO: only triads ATM
 

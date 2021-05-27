@@ -62,8 +62,8 @@ export class TestingPanelComponent {
   getDiatonicTriads() {
     this.diatonicTriads = [];
     // this.selectedChords = [];
-    this.diatonic.getDiatonicTriadsForScale(this.diatonic.activeScale).forEach(triad => {
-      this.diatonicTriads.push([this.diatonic.getLabelForChordInScale(triad, this.diatonic.activeScale), triad]);
+    this.diatonic.getDiatonicTriads().forEach(triad => {
+      this.diatonicTriads.push([this.diatonic.getLabelsForChord(triad), triad]);
     });
   }
 
@@ -82,7 +82,7 @@ export class TestingPanelComponent {
   testScale() {
     if (this.synth) {
       const now = Tone.now();
-      this.diatonic.getPitchesInScale(this.diatonic.activeScale, 4).forEach((note, index) => {
+      this.diatonic.getPitchesInScale(4).forEach((note, index) => {
         this.synth.triggerAttackRelease(note, "8n", now + (index / 4));
       });
     }
