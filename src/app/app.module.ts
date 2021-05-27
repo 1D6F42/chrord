@@ -9,11 +9,13 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { TestingPanelComponent } from './testing-panel/testing-panel.component';
 import { MatDividerModule } from '@angular/material/divider';
+import { ChordComponent } from './chord/chord.component';
 
 @NgModule({
   declarations: [
     AppComponent,
-    TestingPanelComponent
+    TestingPanelComponent,
+    ChordComponent
   ],
   imports: [
     BrowserModule,

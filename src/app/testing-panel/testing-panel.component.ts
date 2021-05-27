@@ -12,8 +12,7 @@ export class TestingPanelComponent {
 
   selectedMode: string = MODES[1]; // 1 is ionian (major / elusive)
   selectedTonic: string = "C"; // C Ionian is the most default key
-  selectedScale: Scale;
-  selectedChords: string[][] = [];
+  selectedChords: Chord[] = [];
 
   modes: string[] = [];
   tonics: string[] = [];
@@ -23,7 +22,7 @@ export class TestingPanelComponent {
 
   synth: Tone.PolySynth;
 
-  constructor(private readonly diatonic: DiatonicService) {
+  constructor(readonly diatonic: DiatonicService) {
     this.initialise();
   }
 
@@ -42,7 +41,7 @@ export class TestingPanelComponent {
   setScale() {
     this.diatonic.generated_scales.forEach(scale => {
       if (this.selectedMode == scale.mode && this.selectedTonic == scale.notes[0]) {
-        this.selectedScale = scale;
+        this.diatonic.activeScale = scale;
       }
     });
 
@@ -62,21 +61,20 @@ export class TestingPanelComponent {
 
   getDiatonicTriads() {
     this.diatonicTriads = [];
-    this.selectedChords = [];
-    this.diatonic.getDiatonicTriadsForScale(this.selectedScale).forEach(triad => {
-      this.diatonicTriads.push([this.diatonic.getLabelForChordInScale(triad, this.selectedScale), triad]);
+    // this.selectedChords = [];
+    this.diatonic.getDiatonicTriadsForScale(this.diatonic.activeScale).forEach(triad => {
+      this.diatonicTriads.push([this.diatonic.getLabelForChordInScale(triad, this.diatonic.activeScale), triad]);
     });
   }
 
   selectChord(chord: Chord) {
-    this.selectedChords.push(this.diatonic.getPitchesInChord(chord, this.selectedScale));
+    this.selectedChords.push(chord);
   }
 
   // TODO: make this automatic when play button is pressed.
   async enableAudio() {
     await Tone.start()
     console.log('audio is ready')
-    //create a synth and connect it to the main output (your speakers)
     this.synth = new Tone.PolySynth(Tone.Synth).toDestination();
     this.volume_icon = "volume_up"
   }
@@ -84,7 +82,7 @@ export class TestingPanelComponent {
   testScale() {
     if (this.synth) {
       const now = Tone.now();
-      this.diatonic.getPitchesInScale(this.selectedScale, 4).forEach((note, index) => {
+      this.diatonic.getPitchesInScale(this.diatonic.activeScale, 4).forEach((note, index) => {
         this.synth.triggerAttackRelease(note, "8n", now + (index / 4));
       });
     }
@@ -96,8 +94,7 @@ export class TestingPanelComponent {
     if (this.synth) {
       const now = Tone.now()
       this.selectedChords.forEach((chord, index) => {
-        console.log(chord);
-        this.synth.triggerAttackRelease(chord, "8n", now + (index / 2));
+        this.synth.triggerAttackRelease(this.diatonic.getPitchesInChord(chord, this.diatonic.activeScale), "8n", now + (index / 2));
       });
     } else {
       alert("Press volume button to enable audio")

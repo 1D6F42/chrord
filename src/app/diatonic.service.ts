@@ -10,6 +10,8 @@ export class DiatonicService {
 
   public generated_scales: Scale[] = [];
 
+  public activeScale: Scale;
+
   constructor(private readonly util: UtilService) {
     this.knowAllScales();
   }

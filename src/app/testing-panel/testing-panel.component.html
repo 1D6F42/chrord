@@ -20,11 +20,10 @@
         mat-raised-button>{{triad[0]}}</button>
 </div>
 <div class="classy-text">
-    Notes: <span *ngFor="let note of selectedScale.notes">{{note}} </span>
+    Notes: <span *ngFor="let note of diatonic.activeScale.notes">{{note}} </span>
 </div>
-<div class="classy-text">
-    Selected Chords:<br><span class="classy-text" *ngFor="let chord of selectedChords">{{chord}}<br></span>
-</div>
+
+<app-chord *ngFor="let chord of selectedChords" [chord]="chord"></app-chord>
 
 <button mat-mini-fab class="icon-button" (click)="testChords()">
     <mat-icon>play_arrow</mat-icon>
