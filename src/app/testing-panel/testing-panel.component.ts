@@ -94,6 +94,7 @@ export class TestingPanelComponent {
     if (this.synth) {
       const now = Tone.now()
       this.selectedChords.forEach((chord, index) => {
+        // TODO: this doesn't handle if the active scale has changed since the chord was selected. NEEDS FIXED
         this.synth.triggerAttackRelease(this.diatonic.getPitchesInChord(chord, this.diatonic.activeScale), "8n", now + (index / 2));
       });
     } else {

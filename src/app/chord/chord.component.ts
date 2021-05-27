@@ -10,14 +10,19 @@ import { DiatonicService } from '../diatonic.service';
 export class ChordComponent implements OnInit {
 
   @Input() chord!: Chord;
+  notes: string[] = [];
+  pitches: string[] = [];
 
-  constructor(private readonly diatonic: DiatonicService) { }
+  color: string = "#FFFFFF"
+  label: string = "";
+
+  constructor(readonly diatonic: DiatonicService) { }
 
   ngOnInit(): void {
-  }
-
-  notes(chord: Chord) {
-    return this.diatonic.getPitchesInChord(chord)
+    this.notes = this.diatonic.getNotesInChord(this.chord);
+    this.pitches = this.diatonic.getPitchesInChord(this.chord);
+    this.color = this.diatonic.getColorForChord(this.chord);
+    this.label = this.diatonic.getLabelsForChord(this.chord);
   }
 
 }

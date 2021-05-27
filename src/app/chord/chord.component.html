@@ -1,3 +1,4 @@
-<div class="classy-text">
-    {{notes(chord)}}
-</div>
+<mat-card class="chord" [style.background-color]="color">
+    {{label}}
+    <div><button mat-mini-fab class="note-button" *ngFor="let note of notes">{{note}}</button></div>
+</mat-card>

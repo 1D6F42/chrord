@@ -191,6 +191,28 @@ export class DiatonicService {
     return notes;
   }
 
+  getNotesInChord(chord: Chord, scale?: Scale) {
+    if (scale === undefined) {
+      scale = this.activeScale;
+    }
+    var notes: string[] = []; // -1 because degree 1 = array[0];
+
+    // get root note name
+    var root = scale.notes[chord.degree - 1];
+
+    // get the chromatic scale index of the root note
+    var note_index = scale.chromatic.indexOf(root);
+
+    notes.push(root);
+
+    chord.intervals.forEach(interval => {
+      note_index += interval;
+      notes.push(scale.chromatic[this.util.wrapIndex(note_index, 12)]);
+    });
+
+    return notes;
+  }
+
   // Gets the Scientific Pitch Notation for a chord. Returns an array of notes like "[A4, C#5, E5]"
   getPitchesInChord(chord: Chord, scale?: Scale, octave?: number): string[] {
 
@@ -248,24 +270,53 @@ export class DiatonicService {
     let degree = Degrees.text[chord.degree];
 
     if (chord.matchShape(ChordShapes.major)) {
-      return note + " - " + degree;
+      return note + " / " + degree;
     }
     if (chord.matchShape(ChordShapes.minor)) {
-      return note.toLowerCase() + " - " + degree.toLowerCase();
+      return note.toLowerCase() + " / " + degree.toLowerCase();
     }
     if (chord.matchShape(ChordShapes.diminished)) {
-      return note.toLowerCase() + " dim" + " - " + degree.toLowerCase() + "o";
+      return note.toLowerCase() + " dim" + " / " + degree.toLowerCase() + "o";
     }
     if (chord.matchShape(ChordShapes.augmented)) {
-      return note + " aug" + " - " + degree + "+";
+      return note + " aug" + " / " + degree + "+";
     }
     if (chord.matchShape(ChordShapes.sus2)) {
-      return note + " sus2" + " - " + degree + "sus2";
+      return note + " sus2" + " / " + degree + "sus2";
     }
     if (chord.matchShape(ChordShapes.sus4)) {
-      return note + " sus4" + " - " + degree + "sus4";
+      return note + " sus4" + " / " + degree + "sus4";
     }
     return "?"
+  }
+
+  getColorForChord(chord: Chord, scale?: Scale){
+    if (scale === undefined) {
+      scale = this.activeScale;
+    }
+
+    // TODO: only triads ATM
+
+    if (chord.matchShape(ChordShapes.major)) {
+      return "#db4444"
+    }
+    if (chord.matchShape(ChordShapes.minor)) {
+      return "#4479db"
+    }
+    if (chord.matchShape(ChordShapes.diminished)) {
+      return "#5ed65c"
+    }
+    if (chord.matchShape(ChordShapes.augmented)) {
+      return "#8a44db"
+    }
+    if (chord.matchShape(ChordShapes.sus2)) {
+      return "#b844db"
+    }
+    if (chord.matchShape(ChordShapes.sus4)) {
+      return "#44db90"
+    }
+    return "#1D6F42"
+
   }
 }
 

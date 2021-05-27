@@ -22,8 +22,9 @@
 <div class="classy-text">
     Notes: <span *ngFor="let note of diatonic.activeScale.notes">{{note}} </span>
 </div>
-
-<app-chord *ngFor="let chord of selectedChords" [chord]="chord"></app-chord>
+<div style="display: flex; flex-direction: row;">
+    <app-chord *ngFor="let chord of selectedChords" [chord]="chord"></app-chord>
+</div>
 
 <button mat-mini-fab class="icon-button" (click)="testChords()">
     <mat-icon>play_arrow</mat-icon>

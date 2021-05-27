@@ -1,0 +1,14 @@
+.chord {
+    width: fit-content;
+    height: fit-content;
+    margin: 12px;
+    text-align: center;
+    border-radius: 22px;
+    color: #FFF;
+}
+
+.note-button {
+    margin: 5px;
+    background-color: #eee;
+    color: #333
+}
