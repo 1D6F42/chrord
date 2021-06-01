@@ -32,7 +32,7 @@ export class Degrees {
     public static dominant = "5";
     public static submediant = "6";
     public static leadingTone = "7";
-    public static text = ["-", "I", "II", "III", "IV", "V", "VI", "VII"];
+    public static text = ["I", "II", "III", "IV", "V", "VI", "VII"];
 }
 
 export class Scale {
@@ -52,15 +52,22 @@ export class Scale {
 }
 
 export class Chord {
-    // ... a chord is defined by it's chromatic intervals and the degree that it starts on. 
-    // The degree is optional, because we might want to treat the chord only according to its shape.
+    // ... a chord is defined by it's chromatic intervals and the chromatic index that it starts on. 
+    // The chr_index is optional, because we might want to treat the chord only according to its shape.
 
-    degree: number;
+    scale: Scale;
+    chr_index: number;
     intervals: number[]
 
-    constructor(intervals: number[], degree?: number){
+    constructor(intervals: number[], chr_index?: number, scale?: Scale){
+        if(chr_index !== undefined){
+            this.chr_index = chr_index;
+        }
+        if(scale !== undefined){
+            this.scale = scale;
+        }
+
         this.intervals = intervals;
-        this.degree = degree;
     }
 
     matchShape(shape: number[]): boolean {

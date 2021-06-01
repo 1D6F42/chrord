@@ -1,5 +1,5 @@
 import { Component, OnInit, Input } from '@angular/core';
-import { Chord } from '../diatonic-definitions';
+import { Chord, Intervals } from '../diatonic-definitions';
 import { DiatonicService } from '../diatonic.service';
 
 @Component({
@@ -10,6 +10,7 @@ import { DiatonicService } from '../diatonic.service';
 export class ChordComponent implements OnInit {
 
   @Input() chord!: Chord;
+
   notes: string[] = [];
   pitches: string[] = [];
 
@@ -19,10 +20,26 @@ export class ChordComponent implements OnInit {
   constructor(readonly diatonic: DiatonicService) { }
 
   ngOnInit(): void {
+    this.loadChord();
+  }
+
+  loadChord() {
     this.notes = this.diatonic.getNotesInChord(this.chord);
     this.pitches = this.diatonic.getPitchesInChord(this.chord);
     this.color = this.diatonic.getColorForChord(this.chord);
     this.label = this.diatonic.getLabelsForChord(this.chord);
+  }
+
+  addNote() {
+    this.chord.intervals.push(Intervals.majorThird);
+    this.loadChord();
+  }
+
+  onWheel(event: MouseWheelEvent, note: string) {
+    let index = this.notes.indexOf(note);
+    let mod = event.deltaY > 0 ? -1 : 1;
+
+    //TODO
   }
 
 }

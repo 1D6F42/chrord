@@ -1,4 +1,12 @@
 <mat-card class="chord" [style.background-color]="color">
     {{label}}
-    <div><button mat-mini-fab class="note-button" *ngFor="let note of notes">{{note}}</button></div>
+    <div class="note-container">
+        <div *ngFor="let note of notes">
+            <button (wheel)="onWheel($event, note)" mat-mini-fab class="note-button">{{note}}</button>
+        </div>
+        <div>
+            <button (click)="addNote()" mat-mini-fab class="add-note-button mat-elevation-z0"><mat-icon>add</mat-icon></button>
+        </div>
+    </div>
+    <div style="color: #ffffffaa">{{chord.scale.notes[0]}} {{chord.scale.mode}}</div>
 </mat-card>

@@ -165,10 +165,8 @@ export class DiatonicService {
       if (iii < i) iii += 12;
       if (v < i) v += 12;
 
-      triads.push(new Chord([iii - i, v - iii], index + 1));
-
+      triads.push(new Chord([iii - i, v - iii], value, this.activeScale));
     });
-
     return triads;
   }
 
@@ -193,15 +191,15 @@ export class DiatonicService {
 
   getNotesInChord(chord: Chord, scale?: Scale) {
     if (scale === undefined) {
-      scale = this.activeScale;
+      scale = chord.scale;
     }
-    var notes: string[] = []; // -1 because degree 1 = array[0];
+    var notes: string[] = [];
 
     // get root note name
-    var root = scale.notes[chord.degree - 1];
+    var root = scale.chromatic[chord.chr_index];
 
     // get the chromatic scale index of the root note
-    var note_index = scale.chromatic.indexOf(root);
+    var note_index = chord.chr_index;
 
     notes.push(root);
 
@@ -222,13 +220,13 @@ export class DiatonicService {
     }
 
     if (scale === undefined) {
-      scale = this.activeScale;
+      scale = chord.scale;
     }
 
-    var notes: string[] = []; // -1 because degree 1 = array[0];
+    var notes: string[] = [];
 
     // get root note name
-    var root = scale.notes[chord.degree - 1];
+    var root = scale.chromatic[chord.chr_index];
 
     // get the chromatic scale index of the root note
     var note_index = scale.chromatic.indexOf(root);
@@ -258,7 +256,7 @@ export class DiatonicService {
   getLabelsForChord(chord: Chord, scale?: Scale) {
 
     if (scale === undefined) {
-      scale = this.activeScale;
+      scale = chord.scale;
     }
 
     // TODO: only triads ATM
@@ -266,8 +264,12 @@ export class DiatonicService {
     // uppercase is default, as it lets me use lowercase b as flat symbol more easily
     // using the _actual_ flat symbol doesn't work with tone.js ironically.
 
-    let note = scale.notes[chord.degree - 1];
-    let degree = Degrees.text[chord.degree];
+    let note = scale.chromatic[chord.chr_index];
+    let degree = Degrees.text[scale.notes.indexOf(note)];
+
+    if (degree === undefined){
+      degree = "-";
+    }
 
     if (chord.matchShape(ChordShapes.major)) {
       return note + " / " + degree;
@@ -287,12 +289,12 @@ export class DiatonicService {
     if (chord.matchShape(ChordShapes.sus4)) {
       return note + " sus4" + " / " + degree + "sus4";
     }
-    return "?"
+    return ""
   }
 
   getColorForChord(chord: Chord, scale?: Scale){
     if (scale === undefined) {
-      scale = this.activeScale;
+      scale = chord.scale;
     }
 
     // TODO: only triads ATM

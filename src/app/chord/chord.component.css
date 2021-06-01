@@ -12,3 +12,15 @@
     background-color: #eee;
     color: #333
 }
+
+.add-note-button {
+    background-color: transparent;
+    border: 1px #333 solid;
+    margin: 5px;
+    color: #333;
+}
+
+.note-container {
+    display: flex;
+    flex-direction: row;
+}
