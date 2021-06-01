@@ -35,55 +35,6 @@ export class Degrees {
     public static text = ["I", "II", "III", "IV", "V", "VI", "VII"];
 }
 
-export class Scale {
-    notes: string[];        // Text representation of notes in the scale, e.g. ["C", "D", "E", "F", "G", "A", "B"];
-    c_index: number;        // The index of c-natural (or B#) in the scale, used to determine pitch notation, e.g. C#4
-    accidentals: string[];  // The notes that are not natural to the scale. Not used anywhere yet.
-    chromatic: string[];    // The chromatic scale of 12 notes that this scale of 7 notes is based on. 
-    mode: string;           // The mode...
-
-    constructor(notes: string[], c_index: number, accidentals: string[], chromatic: string[], mode: string) {
-        this.notes = notes;
-        this.c_index = c_index;
-        this.accidentals = accidentals;
-        this.chromatic = chromatic;
-        this.mode = mode;
-    }
-}
-
-export class Chord {
-    // ... a chord is defined by it's chromatic intervals and the chromatic index that it starts on. 
-    // The chr_index is optional, because we might want to treat the chord only according to its shape.
-
-    scale: Scale;
-    chr_index: number;
-    intervals: number[]
-
-    constructor(intervals: number[], chr_index?: number, scale?: Scale){
-        if(chr_index !== undefined){
-            this.chr_index = chr_index;
-        }
-        if(scale !== undefined){
-            this.scale = scale;
-        }
-
-        this.intervals = intervals;
-    }
-
-    matchShape(shape: number[]): boolean {
-
-        if (shape === this.intervals) return true;
-        if (shape == null || this.intervals == null) return false;
-        if (shape.length !== this.intervals.length) return false;
-
-        for (var i = 0; i < shape.length; ++i) {
-            if (shape[i] !== this.intervals[i]) return false;
-        }
-
-        return true;
-    }
-}
-
 export class ChordShapes {
     public static major = [Intervals.majorThird, Intervals.minorThird];
     public static minor = [Intervals.minorThird, Intervals.majorThird];
@@ -91,4 +42,7 @@ export class ChordShapes {
     public static augmented = [Intervals.majorThird, Intervals.majorThird];
     public static sus2 = [Intervals.majorSecond, Intervals.perfectFourth];
     public static sus4 = [Intervals.perfectFourth, Intervals.majorSecond];
+    public static maj7 =  [Intervals.majorThird, Intervals.minorThird, Intervals.majorThird];
+    public static dom7 =  [Intervals.majorThird, Intervals.minorThird, Intervals.majorThird];
+    public static dim7 =  [Intervals.minorThird, Intervals.majorSecond, Intervals.minorThird];
 }

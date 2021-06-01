@@ -1,6 +1,8 @@
 import { Component } from '@angular/core';
 import { DiatonicService } from '../diatonic.service';
-import { Chord, Scale, MODES } from '../diatonic-definitions';
+import { MODES } from '../diatonic-definitions';
+import { Chord } from '../chord';
+
 import * as Tone from 'tone'
 
 @Component({
@@ -63,7 +65,7 @@ export class TestingPanelComponent {
     this.diatonicTriads = [];
     // this.selectedChords = [];
     this.diatonic.getDiatonicTriads().forEach(triad => {
-      this.diatonicTriads.push([this.diatonic.getLabelsForChord(triad), triad]);
+      this.diatonicTriads.push([triad.getLabel(), triad]);
     });
   }
 
@@ -82,7 +84,7 @@ export class TestingPanelComponent {
   testScale() {
     if (this.synth) {
       const now = Tone.now();
-      this.diatonic.getPitchesInScale(4).forEach((note, index) => {
+      this.diatonic.activeScale.getPitches(4).forEach((note, index) => {
         this.synth.triggerAttackRelease(note, "8n", now + (index / 4));
       });
     }
@@ -95,7 +97,7 @@ export class TestingPanelComponent {
       const now = Tone.now()
       this.selectedChords.forEach((chord, index) => {
         // TODO: this doesn't handle if the active scale has changed since the chord was selected. NEEDS FIXED
-        this.synth.triggerAttackRelease(this.diatonic.getPitchesInChord(chord), "8n", now + (index / 2));
+        this.synth.triggerAttackRelease(chord.getPitches(), "8n", now + (index / 2));
       });
     } else {
       alert("Press volume button to enable audio")

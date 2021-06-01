@@ -1,6 +1,8 @@
-import { Injectable, ɵCompiler_compileModuleSync__POST_R3__ } from '@angular/core';
-import { Degrees, Scale, MODES, Chord, ChordShapes } from './diatonic-definitions'
-import { UtilService } from './util.service';
+import { Injectable } from '@angular/core';
+import { MODES } from './diatonic-definitions'
+import { Scale } from './scale';
+import { Chord } from './chord';
+import { Util } from './Utilities';
 
 @Injectable({
   providedIn: 'root'
@@ -12,7 +14,7 @@ export class DiatonicService {
 
   public activeScale: Scale;
 
-  constructor(private readonly util: UtilService) {
+  constructor() {
     this.knowAllScales();
   }
 
@@ -49,15 +51,15 @@ export class DiatonicService {
     // - Track which notes aren't in the scale, so we can build the correct set of 12 notes that make up the corresponding 'chromatic' scale.
 
     for (var modeIndex = 0; modeIndex < num_modes; modeIndex++) {
-      var mode_sharps = this.util.rotateArray(Object.assign([], order_of_sharps), modeIndex); // rotate order_of_sharps so the 0-sharp scale is at the start
-      var mode_flats = this.util.rotateArray(Object.assign([], order_of_flats), modeIndex); // rotate order_of_flats so the 0-flat scale is at the start
+      var mode_sharps = Util.rotateArray(Object.assign([], order_of_sharps), modeIndex); // rotate order_of_sharps so the 0-sharp scale is at the start
+      var mode_flats = Util.rotateArray(Object.assign([], order_of_flats), modeIndex); // rotate order_of_flats so the 0-flat scale is at the start
       for (var scale_num = 0; scale_num < num_scales; scale_num++) { // One scale has 0 sharps/flats, so we need to add 1 to the length.
         // Create a scale containing just the note names. We use this as a base scale to modify later.
         var sharp_scale = Object.assign([], order_of_sharps).sort();
         var flat_scale = Object.assign([], order_of_flats).sort();
 
         // We need our array index to wrap, because a scale with 7 sharps/flats will start on the same natural note name as the scale with no sharps/flats.
-        let wrapped = this.util.wrapIndex(scale_num);
+        let wrapped = Util.wrapIndex(scale_num);
 
         var sharp_accidentals: string[] = []; // we want to keep track of accidentals, so we can construct the appropriate chromatic note set for each scale
         var flat_accidentals: string[] = [];
@@ -110,8 +112,8 @@ export class DiatonicService {
           flat_chromatic_scale.push(s);
         });
 
-        sharp_chromatic_scale = this.util.rotateArray(sharp_chromatic_scale, this.util.sortArrayOfNotes(sharp_chromatic_scale).indexOf(mode_sharps[wrapped]));
-        flat_chromatic_scale = this.util.rotateArray(flat_chromatic_scale, this.util.sortArrayOfNotes(flat_chromatic_scale).indexOf(mode_flats[wrapped]));
+        sharp_chromatic_scale = Util.rotateArray(sharp_chromatic_scale, Util.sortArrayOfNotes(sharp_chromatic_scale).indexOf(mode_sharps[wrapped]));
+        flat_chromatic_scale = Util.rotateArray(flat_chromatic_scale, Util.sortArrayOfNotes(flat_chromatic_scale).indexOf(mode_flats[wrapped]));
 
         // The octave component Scientific Pitch Notation (SPN, e.g. C#4, Eb2, etc) increments on each 'C' natural. We need to know what index in the
         // scale the next C-natural is at so that we can generate notes correctly later.
@@ -128,8 +130,8 @@ export class DiatonicService {
         flat_c_index = flat_c_index == 0 ? 12 : flat_c_index;
 
         // 'rotateArray' puts the correct note at the start of the scale. 
-        sharp_scale = this.util.rotateArray(sharp_scale, sharp_scale.indexOf(mode_sharps[wrapped]));
-        flat_scale = this.util.rotateArray(flat_scale, flat_scale.indexOf(mode_flats[wrapped]));
+        sharp_scale = Util.rotateArray(sharp_scale, sharp_scale.indexOf(mode_sharps[wrapped]));
+        flat_scale = Util.rotateArray(flat_scale, flat_scale.indexOf(mode_flats[wrapped]));
 
         // the '6 - modeIndex' is because we're going backwards for flat scales
         this.generated_scales.push(new Scale(sharp_scale, sharp_c_index, sharp_accidentals, sharp_chromatic_scale, MODES[modeIndex]));
@@ -158,8 +160,8 @@ export class DiatonicService {
 
       // Get the 1, 3 and 5 notes:
       let i = value;
-      let iii = indices[this.util.wrapIndex(index + 2)]
-      let v = indices[this.util.wrapIndex(index + 4)]
+      let iii = indices[Util.wrapIndex(index + 2)]
+      let v = indices[Util.wrapIndex(index + 4)]
 
       // Fix wrapping if necessary (if a note has trespassed into the next octave)
       if (iii < i) iii += 12;
@@ -168,157 +170,6 @@ export class DiatonicService {
       triads.push(new Chord([iii - i, v - iii], value, this.activeScale));
     });
     return triads;
-  }
-
-  getPitchesInScale(scale_octave: number, scale?: Scale): string[] {
-
-    if (scale === undefined) {
-      scale = this.activeScale;
-    }
-
-    // Simple function to get pitch notation for notes in a scale
-
-    var notes = [];
-    scale.notes.forEach(note => {
-      if (scale.chromatic.indexOf(note) >= scale.c_index) {
-        notes.push(note + (scale_octave + 1));
-      } else {
-        notes.push(note + scale_octave);
-      }
-    });
-    return notes;
-  }
-
-  getNotesInChord(chord: Chord, scale?: Scale) {
-    if (scale === undefined) {
-      scale = chord.scale;
-    }
-    var notes: string[] = [];
-
-    // get root note name
-    var root = scale.chromatic[chord.chr_index];
-
-    // get the chromatic scale index of the root note
-    var note_index = chord.chr_index;
-
-    notes.push(root);
-
-    chord.intervals.forEach(interval => {
-      note_index += interval;
-      notes.push(scale.chromatic[this.util.wrapIndex(note_index, 12)]);
-    });
-
-    return notes;
-  }
-
-  // Gets the Scientific Pitch Notation for a chord. Returns an array of notes like "[A4, C#5, E5]"
-  getPitchesInChord(chord: Chord, scale?: Scale, octave?: number): string[] {
-
-    // Default to middle octave
-    if (octave === undefined) {
-      octave = 3;
-    }
-
-    if (scale === undefined) {
-      scale = chord.scale;
-    }
-
-    var notes: string[] = [];
-
-    // get root note name
-    var root = scale.chromatic[chord.chr_index];
-
-    // get the chromatic scale index of the root note
-    var note_index = scale.chromatic.indexOf(root);
-
-    // Add the pitch octave to the root (+1 if it's above the index of 'C')
-    root += note_index >= scale.c_index ? octave + 1 : octave;
-
-    notes.push(root);
-
-    chord.intervals.forEach(interval => {
-      note_index += interval;
-
-      // The following line adds the correct octave number, based on:
-      // - The input 'octave' var (base octave of the scale the chord is in)
-      // - whether the note is passed the first 'C' (note index > c_index)
-      // - whether the note is passed x additional 'C's (noteindex - c index) / 12
-
-      let pitch_octave = note_index >= scale.c_index ? octave + 1 + Math.floor((note_index - scale.c_index) / 12) : octave;
-
-      let note = scale.chromatic[this.util.wrapIndex(note_index, 12)];
-      notes.push(note + pitch_octave);
-    });
-
-    return notes;
-  }
-
-  getLabelsForChord(chord: Chord, scale?: Scale) {
-
-    if (scale === undefined) {
-      scale = chord.scale;
-    }
-
-    // TODO: only triads ATM
-
-    // uppercase is default, as it lets me use lowercase b as flat symbol more easily
-    // using the _actual_ flat symbol doesn't work with tone.js ironically.
-
-    let note = scale.chromatic[chord.chr_index];
-    let degree = Degrees.text[scale.notes.indexOf(note)];
-
-    if (degree === undefined){
-      degree = "-";
-    }
-
-    if (chord.matchShape(ChordShapes.major)) {
-      return note + " / " + degree;
-    }
-    if (chord.matchShape(ChordShapes.minor)) {
-      return note.toLowerCase() + " / " + degree.toLowerCase();
-    }
-    if (chord.matchShape(ChordShapes.diminished)) {
-      return note.toLowerCase() + " dim" + " / " + degree.toLowerCase() + "o";
-    }
-    if (chord.matchShape(ChordShapes.augmented)) {
-      return note + " aug" + " / " + degree + "+";
-    }
-    if (chord.matchShape(ChordShapes.sus2)) {
-      return note + " sus2" + " / " + degree + "sus2";
-    }
-    if (chord.matchShape(ChordShapes.sus4)) {
-      return note + " sus4" + " / " + degree + "sus4";
-    }
-    return ""
-  }
-
-  getColorForChord(chord: Chord, scale?: Scale){
-    if (scale === undefined) {
-      scale = chord.scale;
-    }
-
-    // TODO: only triads ATM
-
-    if (chord.matchShape(ChordShapes.major)) {
-      return "#db4444"
-    }
-    if (chord.matchShape(ChordShapes.minor)) {
-      return "#4479db"
-    }
-    if (chord.matchShape(ChordShapes.diminished)) {
-      return "#5ed65c"
-    }
-    if (chord.matchShape(ChordShapes.augmented)) {
-      return "#8a44db"
-    }
-    if (chord.matchShape(ChordShapes.sus2)) {
-      return "#b844db"
-    }
-    if (chord.matchShape(ChordShapes.sus4)) {
-      return "#44db90"
-    }
-    return "#1D6F42"
-
   }
 }
 

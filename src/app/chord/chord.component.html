@@ -1,7 +1,7 @@
-<mat-card class="chord" [style.background-color]="color">
-    {{label}}
+<mat-card class="chord" [style.background-color]="chord.getColor()">
+    {{chord.getLabel()}}
     <div class="note-container">
-        <div *ngFor="let note of notes">
+        <div *ngFor="let note of chord.getNotes()">
             <button (wheel)="onWheel($event, note)" mat-mini-fab class="note-button">{{note}}</button>
         </div>
         <div>
