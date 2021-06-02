@@ -1,11 +1,16 @@
 <mat-card class="chord" [style.background-color]="chord.getColor()">
     {{chord.getLabel()}}
     <div class="note-container">
-        <div *ngFor="let note of chord.getNotes()">
-            <button (wheel)="onWheel($event, note)" mat-mini-fab class="note-button">{{note}}</button>
+        <div *ngFor="let note of chord.getNotes(); index as i">
+            <button (wheel)="onWheel($event, i)" mat-mini-fab class="note-button">
+                {{note}}
+                <sub *ngIf="chord.getOctaveNumbers()[i] > 0">+{{chord.getOctaveNumbers()[i]}}</sub>
+            </button>
         </div>
         <div>
-            <button (click)="addNote()" mat-mini-fab class="add-note-button mat-elevation-z0"><mat-icon>add</mat-icon></button>
+            <button (click)="addNote()" mat-mini-fab class="add-note-button mat-elevation-z0">
+                <mat-icon>add</mat-icon>
+            </button>
         </div>
     </div>
     <div style="color: #ffffffaa">{{chord.scale.notes[0]}} {{chord.scale.mode}}</div>

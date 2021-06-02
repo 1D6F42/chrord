@@ -97,7 +97,7 @@ export class TestingPanelComponent {
       const now = Tone.now()
       this.selectedChords.forEach((chord, index) => {
         // TODO: this doesn't handle if the active scale has changed since the chord was selected. NEEDS FIXED
-        this.synth.triggerAttackRelease(chord.getPitches(), "8n", now + (index / 2));
+        this.synth.triggerAttackRelease(chord.getPitchNotation(), "8n", now + (index / 2));
       });
     } else {
       alert("Press volume button to enable audio")
