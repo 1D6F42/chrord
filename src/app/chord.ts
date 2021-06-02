@@ -216,6 +216,6 @@ export class Chord {
         if (this.matchShape(ChordShapes.dim7)) {
             return "#6440db"
         }
-        return "#1D6F42"
+        return "#888"
     }
 }
