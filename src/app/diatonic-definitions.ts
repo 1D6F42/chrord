@@ -8,31 +8,57 @@ export enum MODES {
     Locrian
 }
 
-export class Intervals { // this could be an enum idiot
-    public static unison = 0;
-    public static minorSecond = 1; // semitone
-    public static majorSecond = 2; // tone
-    public static minorThird = 3;
-    public static majorThird = 4;
-    public static perfectFourth = 5;
-    public static tritone = 6; // dim 5th, aug 4th
-    public static perfectFifth = 7;
-    public static minorSixth = 8;
-    public static majorSixth = 9;
-    public static minorSeventh = 10;
-    public static majorSeventh = 11;
-    public static octave = 12;
+export const enum Intervals {
+    unison,
+    minorSecond, // semitone
+    majorSecond, // tone
+    minorThird,
+    majorThird,
+    perfectFourth,
+    tritone, // dim 5th, aug 4th
+    perfectFifth,
+    minorSixth,
+    majorSixth,
+    minorSeventh,
+    majorSeventh,
+    octave
 }
 
-export class Degrees {
-    public static tonic = "1";
-    public static supertonic = "2";
-    public static mediant = "3";
-    public static subdominant = "4";
-    public static dominant = "5";
-    public static submediant = "6";
-    public static leadingTone = "7";
-    public static text = ["I", "II", "III", "IV", "V", "VI", "VII"];
+export enum Degrees {
+    "I",
+    "II",
+    "III",
+    "IV",
+    "V",
+    "VI",
+    "VII"
+}
+
+export enum DegreeNames { // unused
+    tonic,
+    supertonic,
+    mediant,
+    subdominant,
+    dominant,
+    submediant,
+    leadingTone
+}
+
+export enum ChordColors {
+    major = "#A53F2B",
+    minor = "#81A4CD",
+    diminished = "#AEC5EB",
+    augmented = "#78BC61",
+    sus2 = "#388659",
+    sus4 = "#388659",
+    maj7 = "#F7B538",
+    dom7 = "#F7B538",
+    dim7 = "#AEC5EB",
+    major1nv = "#A53F2B",
+    major2nv = "#A53F2B",
+    minor1nv = "#81A4CD",
+    minor2nv = "#81A4CD",
+    default = "#424C55"
 }
 
 export class ChordShapes {
@@ -42,7 +68,12 @@ export class ChordShapes {
     public static augmented = [Intervals.majorThird, Intervals.majorThird];
     public static sus2 = [Intervals.majorSecond, Intervals.perfectFourth];
     public static sus4 = [Intervals.perfectFourth, Intervals.majorSecond];
-    public static maj7 =  [Intervals.majorThird, Intervals.minorThird, Intervals.majorThird];
-    public static dom7 =  [Intervals.majorThird, Intervals.minorThird, Intervals.majorThird];
-    public static dim7 =  [Intervals.minorThird, Intervals.majorSecond, Intervals.minorThird];
+    public static maj7 = [Intervals.majorThird, Intervals.minorThird, Intervals.majorThird];
+    public static dom7 = [Intervals.majorThird, Intervals.minorThird, Intervals.majorThird];
+    public static dim7 = [Intervals.minorThird, Intervals.majorSecond, Intervals.minorThird];
+    public static major1nv = [Intervals.minorThird, Intervals.perfectFourth];
+    public static major2nv = [Intervals.perfectFourth, Intervals.majorThird];
+    public static minor1nv = [Intervals.majorThird, Intervals.perfectFourth];
+    public static minor2nv = [Intervals.perfectFourth, Intervals.minorThird];
+
 }

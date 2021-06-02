@@ -1,5 +1,5 @@
 import { Scale } from './scale';
-import { ChordShapes, Degrees } from './diatonic-definitions';
+import { ChordShapes, Degrees, ChordColors } from './diatonic-definitions';
 import { Util } from './Utilities';
 
 // TODO: This class has become messy and needs cleaning up / refactoring
@@ -151,71 +151,113 @@ export class Chord {
         // uppercase is default, as it lets me use lowercase b as flat symbol more easily
         // using the _actual_ flat symbol doesn't work with tone.js ironically.
 
-        let note = this.scale.chromatic[this.chr_index];
-        var degree = Degrees.text[this.scale.notes.indexOf(note)];
+        let root = this.scale.chromatic[this.chr_index];
+        var degree = Degrees[this.scale.notes.indexOf(root)];
 
         if (degree === undefined) {
             degree = "-";
         }
 
         if (this.matchShape(ChordShapes.major)) {
-            return note + " / " + degree;
+            return root + " - " + degree;
         }
+        if (this.matchShape(ChordShapes.major1nv)) {
+            let note = this.scale.chromatic[Util.wrapIndex(this.chr_index + this.intervals[0] + this.intervals[1], 12)];
+            degree = Degrees[this.scale.notes.indexOf(note)];
+            return note + " / " + root + " - " + degree;
+        }
+        if (this.matchShape(ChordShapes.major2nv)) {
+            let note = this.scale.chromatic[Util.wrapIndex(this.chr_index + this.intervals[0], 12)];
+            degree = Degrees[this.scale.notes.indexOf(note)];
+            return note + " / " + root + " - " + degree;
+        }
+
         if (this.matchShape(ChordShapes.minor)) {
-            return note.toLowerCase() + " / " + degree.toLowerCase();
+            return root.toLowerCase() + " - " + degree.toLowerCase();
         }
+        if (this.matchShape(ChordShapes.minor1nv)) {
+            let note = this.scale.chromatic[Util.wrapIndex(this.chr_index + this.intervals[0] + this.intervals[1], 12)];
+            degree = Degrees[this.scale.notes.indexOf(note)];
+            return note.toLowerCase() + " / " + root.toLowerCase() + " - " + degree.toLowerCase();
+        }
+        if (this.matchShape(ChordShapes.minor2nv)) {
+            let note = this.scale.chromatic[Util.wrapIndex(this.chr_index + this.intervals[0], 12)];
+            degree = Degrees[this.scale.notes.indexOf(note)];
+            return note.toLowerCase() + " / " + root.toLowerCase() + " - " + degree.toLowerCase();
+        }
+
         if (this.matchShape(ChordShapes.diminished)) {
-            return note.toLowerCase() + " dim" + " / " + degree.toLowerCase() + "o";
+            return root.toLowerCase() + " dim" + " - " + degree.toLowerCase() + "o";
         }
         if (this.matchShape(ChordShapes.augmented)) {
-            return note + " aug" + " / " + degree + "+";
+            return root + " aug" + " - " + degree + "+";
         }
+
         if (this.matchShape(ChordShapes.sus2)) {
-            return note + " sus2" + " / " + degree + "sus2";
+            return root + " sus2" + " - " + degree + "sus2";
         }
         if (this.matchShape(ChordShapes.sus4)) {
-            return note + " sus4" + " / " + degree + "sus4";
+            return root + " sus4" + " - " + degree + "sus4";
         }
+
         if (this.matchShape(ChordShapes.maj7)) {
-            return note + "M7" + " / " + degree + " maj 7";
+            return root + "M7" + " - " + degree + " maj 7";
         }
         if (this.matchShape(ChordShapes.dom7)) {
-            return note + "7" + " / " + degree + "7";
+            return root + "7" + " - " + degree + "7";
         }
         if (this.matchShape(ChordShapes.dim7)) {
-            return note + "o7" + " / " + degree + " dim 7";
+            return root + "o7" + " - " + degree + " dim 7";
         }
-        return ""
+        return "_"
     }
 
     getColor(): string {
+
         if (this.matchShape(ChordShapes.major)) {
-            return "#db4444"
+            return ChordColors.major;
         }
+        if (this.matchShape(ChordShapes.major1nv)) {
+            return ChordColors.major1nv;
+        }
+        if (this.matchShape(ChordShapes.major2nv)) {
+            return ChordColors.major2nv;
+        }
+
         if (this.matchShape(ChordShapes.minor)) {
-            return "#4479db"
+            return ChordColors.minor;
         }
+        if (this.matchShape(ChordShapes.minor1nv)) {
+            return ChordColors.minor1nv;
+        }
+        if (this.matchShape(ChordShapes.minor2nv)) {
+            return ChordColors.minor2nv;
+        }
+
         if (this.matchShape(ChordShapes.diminished)) {
-            return "#5ed65c"
+            return ChordColors.diminished;
         }
         if (this.matchShape(ChordShapes.augmented)) {
-            return "#8a44db"
+            return ChordColors.augmented;
         }
+
         if (this.matchShape(ChordShapes.sus2)) {
-            return "#b844db"
+            return ChordColors.sus2;
         }
         if (this.matchShape(ChordShapes.sus4)) {
-            return "#44db90"
+            return ChordColors.sus4;
         }
+
         if (this.matchShape(ChordShapes.maj7)) {
-            return "#de7a40"
+            return ChordColors.maj7;
         }
         if (this.matchShape(ChordShapes.dom7)) {
-            return "#40afdb"
+            return ChordColors.dom7;
         }
         if (this.matchShape(ChordShapes.dim7)) {
-            return "#6440db"
+            return ChordColors.dim7;
         }
-        return "#888"
+
+        return ChordColors.default;
     }
 }

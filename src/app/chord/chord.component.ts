@@ -22,7 +22,7 @@ export class ChordComponent {
 
   onWheel(event: WheelEvent, index: number) {
     event.preventDefault();
-    let mod = event.deltaY > 0 ? 1 : -1;
+    let mod = event.deltaY > 0 ? -1 : 1;
     this.chord.modifyNote(index, mod);
   }
 

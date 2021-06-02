@@ -5,6 +5,7 @@
     text-align: center;
     border-radius: 22px;
     color: #FFF;
+    font-family: 'Times New Roman', Times, serif;
 }
 
 .note-button {
@@ -15,9 +16,9 @@
 
 .add-note-button {
     background-color: transparent;
-    border: 1px #333 solid;
+    border: 1px #eee solid;
     margin: 5px;
-    color: #333;
+    color: #eee;
 }
 
 .note-container {
